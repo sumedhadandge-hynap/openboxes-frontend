@@ -5,7 +5,22 @@ import { AuthLayout } from "@/layouts/AuthLayout"
 import { Dashboard } from "@/features/dashboard/Dashboard"
 import { Login } from "@/features/auth/Login"
 import { UsersList } from "@/features/users/UsersList"
+import { RolesList } from "@/features/roles/RolesList"
 import { useAuthStore } from "@/store/useAuthStore"
+import { ProductsList } from "@/features/products/ProductsList"
+import { ProductDetail } from "@/features/products/ProductDetail"
+import { InventoryList } from "@/features/inventory/InventoryList"
+import { WarehousesList } from "@/features/warehouses/WarehousesList"
+import { ShipmentsList } from "@/features/shipments/ShipmentsList"
+import { ShipmentDetail } from "@/features/shipments/ShipmentDetail"
+import { ReceiveShipment } from "@/features/shipments/ReceiveShipment"
+import { PickPackShipShipment } from "@/features/shipments/PickPackShipment"
+import { RequisitionsList } from "@/features/requisitions/RequisitionsList"
+import { RequisitionDetail } from "@/features/requisitions/RequisitionDetail"
+import { PermissionsList } from "@/features/permissions/PermissionsList"
+import { SettingsPage } from "@/features/settings/SettingsPage"
+import { ReportingPage } from "@/features/reporting/ReportingPage"
+import { StocklistsPage } from "@/features/stocklists/StocklistsPage"
 
 const queryClient = new QueryClient()
 
@@ -35,14 +50,27 @@ function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="users" element={<UsersList />} />
-            <Route path="roles" element={<div className="p-6">Roles Management</div>} />
-            <Route path="permissions" element={<div className="p-6">Permissions Management</div>} />
-            <Route path="products" element={<div className="p-6">Products Management</div>} />
-            <Route path="inventory" element={<div className="p-6">Inventory Management</div>} />
-            <Route path="warehouses" element={<div className="p-6">Warehouses Management</div>} />
-            <Route path="shipments" element={<div className="p-6">Shipments</div>} />
-            <Route path="requisitions" element={<div className="p-6">Requisitions</div>} />
-            <Route path="settings" element={<div className="p-6">Settings</div>} />
+            <Route path="roles" element={<RolesList />} />
+            <Route path="permissions" element={<PermissionsList />} />
+            
+            <Route path="products" element={<ProductsList />} />
+            <Route path="products/:id" element={<ProductDetail />} />
+            <Route path="inventory" element={<InventoryList />} />
+            <Route path="warehouses" element={<WarehousesList />} />
+            
+            <Route path="shipments" element={<ShipmentsList />} />
+            <Route path="inbound" element={<ShipmentsList key="inbound" defaultType="Inbound" />} />
+            <Route path="outbound" element={<ShipmentsList key="outbound" defaultType="Outbound" />} />
+            <Route path="shipments/:id" element={<ShipmentDetail />} />
+            <Route path="shipments/:id/receive" element={<ReceiveShipment />} />
+            <Route path="shipments/:id/pick-pack" element={<PickPackShipShipment />} />
+            <Route path="reporting" element={<ReportingPage />} />
+            <Route path="stocklists" element={<StocklistsPage />} />
+            
+            <Route path="requisitions" element={<RequisitionsList />} />
+            <Route path="requisitions/:id" element={<RequisitionDetail />} />
+            
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

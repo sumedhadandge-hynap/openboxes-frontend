@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Outlet, Link, useLocation } from "react-router-dom"
 import { 
   LayoutDashboard, 
@@ -6,7 +7,6 @@ import {
   Key, 
   Package, 
   Warehouse, 
-  Truck, 
   ClipboardList, 
   Settings,
   LogOut,
@@ -14,7 +14,12 @@ import {
   Search,
   Menu,
   Box,
-  ChevronRight
+  ChevronRight,
+  ChevronDown,
+  ArrowDownLeft,
+  ArrowUpRight,
+  BarChart3,
+  ListChecks
 } from "lucide-react"
 import { useAuthStore } from "@/store/useAuthStore"
 import { Button } from "@/components/ui/button"
@@ -24,16 +29,18 @@ export function AppLayout() {
   const logout = useAuthStore((state) => state.logout)
   const user = useAuthStore((state) => state.user)
 
-  const navigation = [
-    { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Directory", href: "/users", icon: Users },
-    { name: "Roles", href: "/roles", icon: ShieldCheck },
-    { name: "Permissions", href: "/permissions", icon: Key },
-    { name: "Catalog", href: "/products", icon: Package },
+  const isAccessControlActive = pathname.startsWith("/users") || pathname.startsWith("/roles") || pathname.startsWith("/permissions")
+  const [isAccessControlOpen, setIsAccessControlOpen] = useState(isAccessControlActive)
+
+  const operationsNavigation = [
     { name: "Inventory", href: "/inventory", icon: Box },
+    { name: "Purchasing", href: "/requisitions", icon: ClipboardList },
+    { name: "Inbound", href: "/inbound", icon: ArrowDownLeft },
+    { name: "Outbound", href: "/outbound", icon: ArrowUpRight },
+    { name: "Reporting", href: "/reporting", icon: BarChart3 },
+    { name: "Products", href: "/products", icon: Package },
+    { name: "Stocklists", href: "/stocklists", icon: ListChecks },
     { name: "Facilities", href: "/warehouses", icon: Warehouse },
-    { name: "Logistics", href: "/shipments", icon: Truck },
-    { name: "Requests", href: "/requisitions", icon: ClipboardList },
     { name: "Preferences", href: "/settings", icon: Settings },
   ]
 
@@ -53,29 +60,94 @@ export function AppLayout() {
         <div className="flex-1 overflow-y-auto py-6 px-4 scrollbar-hide">
           <div className="space-y-1">
             <p className="px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Core</p>
-            {navigation.slice(0, 5).map((item) => {
-              const isActive = pathname.startsWith(item.href)
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`group flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300 ${
-                    isActive 
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
-                      : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 font-medium">
-                    <item.icon className={`h-5 w-5 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
-                    {item.name}
-                  </div>
-                  {isActive && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground animate-pulse" />}
-                </Link>
-              )
-            })}
+            
+            {/* Overview link */}
+            <Link
+              to="/dashboard"
+              className={`group flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300 ${
+                pathname.startsWith("/dashboard") 
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
+                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+              }`}
+            >
+              <div className="flex items-center gap-3 font-medium">
+                <LayoutDashboard className={`h-5 w-5 ${pathname.startsWith("/dashboard") ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
+                Dashboard
+              </div>
+              {pathname.startsWith("/dashboard") && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground animate-pulse" />}
+            </Link>
+
+            {/* Access Control (Collapsible Group) */}
+            <div className="space-y-1">
+              <button
+                onClick={() => setIsAccessControlOpen(!isAccessControlOpen)}
+                className={`w-full group flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300 text-left ${
+                  isAccessControlActive && !isAccessControlOpen
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                }`}
+              >
+                <div className="flex items-center gap-3 font-medium">
+                  <ShieldCheck className={`h-5 w-5 ${isAccessControlActive ? "text-primary" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
+                  <span>Access Control</span>
+                </div>
+                {isAccessControlOpen ? (
+                  <ChevronDown className="h-4 w-4 opacity-75" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 opacity-75" />
+                )}
+              </button>
+
+              {/* Collapsed/Expanded Sub-menu */}
+              {isAccessControlOpen && (
+                <div className="pl-4 space-y-1 mt-1 border-l border-border/60 ml-6 animate-in slide-in-from-top-2 duration-200">
+                  <Link
+                    to="/users"
+                    className={`group flex items-center justify-between rounded-xl px-3 py-2 transition-all duration-300 ${
+                      pathname.startsWith("/users")
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 text-sm">
+                      <Users className={`h-4 w-4 ${pathname.startsWith("/users") ? "text-primary" : "text-muted-foreground"}`} />
+                      Directory
+                    </div>
+                  </Link>
+
+                  <Link
+                    to="/roles"
+                    className={`group flex items-center justify-between rounded-xl px-3 py-2 transition-all duration-300 ${
+                      pathname.startsWith("/roles")
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 text-sm">
+                      <ShieldCheck className={`h-4 w-4 ${pathname.startsWith("/roles") ? "text-primary" : "text-muted-foreground"}`} />
+                      Roles
+                    </div>
+                  </Link>
+
+                  <Link
+                    to="/permissions"
+                    className={`group flex items-center justify-between rounded-xl px-3 py-2 transition-all duration-300 ${
+                      pathname.startsWith("/permissions")
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 text-sm">
+                      <Key className={`h-4 w-4 ${pathname.startsWith("/permissions") ? "text-primary" : "text-muted-foreground"}`} />
+                      Permissions
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
             
             <p className="px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-8 mb-4">Operations</p>
-            {navigation.slice(5).map((item) => {
+            {operationsNavigation.map((item) => {
               const isActive = pathname.startsWith(item.href)
               return (
                 <Link
