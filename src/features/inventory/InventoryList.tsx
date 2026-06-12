@@ -16,8 +16,7 @@ import {
 import { Label } from "@/components/ui/label"
 
 export function InventoryList() {
-  const { products, warehouses, inventory, adjustStock, transferStock } = useWarehouseStore()
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("All")
+  const { products, warehouses, inventory, adjustStock, transferStock, zones, binLocations, selectedWarehouseId } = useWarehouseStore()
   const [searchTerm, setSearchTerm] = useState("")
 
   // Adjustment Modal State
@@ -32,6 +31,7 @@ export function InventoryList() {
   const [adjustBin, setAdjustBin] = useState("")
   const [adjustQty, setAdjustQty] = useState(0)
   const [adjustReason, setAdjustReason] = useState("Cycle Count")
+  const [adjustZoneId, setAdjustZoneId] = useState("")
 
   // Transfer Modal State
   const [isTransferOpen, setIsTransferOpen] = useState(false)
@@ -41,6 +41,7 @@ export function InventoryList() {
   const [transToWhId, setTransToWhId] = useState("")
   const [transToBin, setTransToBin] = useState("")
   const [transQty, setTransQty] = useState(1)
+  const [transToZoneId, setTransToZoneId] = useState("")
 
   const getProductDetails = (prodId: string) => {
     return products.find((p) => p.id === prodId) || { name: "Unknown Product", sku: "N/A", category: "N/A", unitOfMeasure: "Units" }
@@ -59,13 +60,23 @@ export function InventoryList() {
       setAdjustExp(item.expirationDate)
       setAdjustBin(item.binLocation)
       setAdjustQty(item.quantityOnHand)
+      setAdjustZoneId("")
     } else {
       setAdjustItem(null)
-      setAdjustWhId(warehouses[0]?.id || "")
+      const defaultWh = selectedWarehouseId || warehouses[0]?.id || ""
+      setAdjustWhId(defaultWh)
       setAdjustProdId(products[0]?.id || "")
       setAdjustLot("")
       setAdjustExp("")
-      setAdjustBin("")
+      
+      const whZones = zones.filter((z) => z.warehouseId === defaultWh)
+      const defaultZone = whZones[0]?.id || ""
+      setAdjustZoneId(defaultZone)
+
+      const zoneBins = binLocations.filter(
+        (b) => b.warehouseId === defaultWh && (!defaultZone || b.zoneId === defaultZone)
+      )
+      setAdjustBin(zoneBins[0]?.code || "")
       setAdjustQty(0)
     }
     setAdjustReason("Cycle Count")
@@ -81,8 +92,18 @@ export function InventoryList() {
 
   const openTransfer = (item: InventoryItem) => {
     setTransferItem(item)
-    setTransToWhId(warehouses.find((w) => w.id !== item.warehouseId)?.id || "")
-    setTransToBin("")
+    const otherWh = warehouses.find((w) => w.id !== item.warehouseId)?.id || ""
+    setTransToWhId(otherWh)
+    
+    const whZones = zones.filter((z) => z.warehouseId === otherWh)
+    const defaultZone = whZones[0]?.id || ""
+    setTransToZoneId(defaultZone)
+
+    const zoneBins = binLocations.filter(
+      (b) => b.warehouseId === otherWh && (!defaultZone || b.zoneId === defaultZone)
+    )
+    setTransToBin(zoneBins[0]?.code || "")
+
     setTransQty(1)
     setIsTransferOpen(true)
   }
@@ -110,7 +131,7 @@ export function InventoryList() {
 
   // Filter inventory
   const filteredInventory = inventory.filter((item) => {
-    const matchesWh = selectedWarehouseId === "All" || item.warehouseId === selectedWarehouseId
+    const matchesWh = item.warehouseId === selectedWarehouseId
     const prod = getProductDetails(item.productId)
     const matchesSearch =
       prod.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -191,33 +212,13 @@ export function InventoryList() {
             className="pl-9 bg-background/50 rounded-xl"
           />
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto py-1">
+        <div className="flex items-center gap-2 w-full md:w-auto py-1">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mr-2 shrink-0">
-            Facility:
+            Active Warehouse/Facility:
           </span>
-          <button
-            onClick={() => setSelectedWarehouseId("All")}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 ${
-              selectedWarehouseId === "All"
-                ? "bg-primary text-primary-foreground shadow"
-                : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            All Facilities
-          </button>
-          {warehouses.map((wh) => (
-            <button
-              key={wh.id}
-              onClick={() => setSelectedWarehouseId(wh.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 ${
-                selectedWarehouseId === wh.id
-                  ? "bg-primary text-primary-foreground shadow"
-                  : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {wh.name}
-            </button>
-          ))}
+          <Badge variant="outline" className="px-3 py-1.5 bg-primary/10 border-primary/20 text-primary font-bold text-xs rounded-full">
+            {getWarehouseDetails(selectedWarehouseId || "").code} - {getWarehouseDetails(selectedWarehouseId || "").name}
+          </Badge>
         </div>
       </div>
 
@@ -240,6 +241,10 @@ export function InventoryList() {
                 const prod = getProductDetails(item.productId)
                 const wh = getWarehouseDetails(item.warehouseId)
                 const isItemExpired = isExpired(item.expirationDate)
+                const binObj = binLocations.find(
+                  (b) => b.warehouseId === item.warehouseId && (b.code === item.binLocation || b.id === item.binLocation)
+                )
+                const zoneObj = binObj ? zones.find((z) => z.id === binObj.zoneId) : null
 
                 return (
                   <tr key={item.id} className="hover:bg-white/5 transition-colors">
@@ -276,7 +281,16 @@ export function InventoryList() {
                         )}
                       </div>
                     </td>
-                    <td className="p-4 font-semibold text-muted-foreground">{item.binLocation || "Unassigned"}</td>
+                    <td className="p-4 font-semibold text-muted-foreground">
+                      <div className="space-y-0.5">
+                        <div className="text-primary font-mono">{item.binLocation || "Unassigned"}</div>
+                        {zoneObj && (
+                          <div className="text-[10px] text-muted-foreground font-normal">
+                            {zoneObj.name.split(" - ")[0]}
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td className="p-4 text-right font-black text-foreground text-base">
                       {item.quantityOnHand} <span className="text-xs text-muted-foreground font-normal">{prod.unitOfMeasure}s</span>
                     </td>
@@ -327,8 +341,19 @@ export function InventoryList() {
                     <select
                       id="adjWh"
                       value={adjustWhId}
-                      onChange={(e) => setAdjustWhId(e.target.value)}
-                      className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      disabled
+                      onChange={(e) => {
+                        const newWhId = e.target.value
+                        setAdjustWhId(newWhId)
+                        const whZones = zones.filter((z) => z.warehouseId === newWhId)
+                        const defaultZone = whZones[0]?.id || ""
+                        setAdjustZoneId(defaultZone)
+                        const zoneBins = binLocations.filter(
+                          (b) => b.warehouseId === newWhId && (!defaultZone || b.zoneId === defaultZone)
+                        )
+                        setAdjustBin(zoneBins[0]?.code || "")
+                      }}
+                      className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring cursor-not-allowed opacity-70"
                     >
                       {warehouses.map((w) => (
                         <option key={w.id} value={w.id}>{w.name}</option>
@@ -347,6 +372,51 @@ export function InventoryList() {
                         <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
                       ))}
                     </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="adjZone">Zone</Label>
+                      <select
+                        id="adjZone"
+                        value={adjustZoneId}
+                        onChange={(e) => {
+                          const newZoneId = e.target.value
+                          setAdjustZoneId(newZoneId)
+                          const zoneBins = binLocations.filter(
+                            (b) => b.warehouseId === adjustWhId && b.zoneId === newZoneId
+                          )
+                          setAdjustBin(zoneBins[0]?.code || "")
+                        }}
+                        className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      >
+                        {zones
+                          .filter((z) => z.warehouseId === adjustWhId)
+                          .map((z) => (
+                            <option key={z.id} value={z.id}>{z.name}</option>
+                          ))}
+                        {zones.filter((z) => z.warehouseId === adjustWhId).length === 0 && (
+                          <option value="">No Zones Configured</option>
+                        )}
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="adjBinSelect">Bin Location</Label>
+                      <select
+                        id="adjBinSelect"
+                        value={adjustBin}
+                        onChange={(e) => setAdjustBin(e.target.value)}
+                        className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      >
+                        {binLocations
+                          .filter((b) => b.warehouseId === adjustWhId && b.zoneId === adjustZoneId)
+                          .map((b) => (
+                            <option key={b.id} value={b.code}>{b.code}</option>
+                          ))}
+                        {binLocations.filter((b) => b.warehouseId === adjustWhId && b.zoneId === adjustZoneId).length === 0 && (
+                          <option value="">No Bins Configured</option>
+                        )}
+                      </select>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -384,17 +454,17 @@ export function InventoryList() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="adjBin">Bin Location</Label>
-                  <Input
-                    id="adjBin"
-                    placeholder="e.g. BIN-A4"
-                    value={adjustBin}
-                    onChange={(e) => setAdjustBin(e.target.value)}
-                    disabled={!!adjustItem}
-                    className="rounded-xl"
-                  />
-                </div>
+                {adjustItem && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="adjBin">Bin Location</Label>
+                    <Input
+                      id="adjBin"
+                      value={adjustBin}
+                      disabled
+                      className="rounded-xl"
+                    />
+                  </div>
+                )}
                 <div className="space-y-1.5">
                   <Label htmlFor="adjQty">New Quantity</Label>
                   <Input
@@ -464,26 +534,74 @@ export function InventoryList() {
                   <select
                     id="transWh"
                     value={transToWhId}
-                    onChange={(e) => setTransToWhId(e.target.value)}
+                    onChange={(e) => {
+                      const newWhId = e.target.value
+                      setTransToWhId(newWhId)
+                      const whZones = zones.filter((z) => z.warehouseId === newWhId)
+                      const defaultZone = whZones[0]?.id || ""
+                      setTransToZoneId(defaultZone)
+                      const zoneBins = binLocations.filter(
+                        (b) => b.warehouseId === newWhId && (!defaultZone || b.zoneId === defaultZone)
+                      )
+                      setTransToBin(zoneBins[0]?.code || "")
+                    }}
                     className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
-                    {warehouses.map((w) => (
-                      <option key={w.id} value={w.id}>{w.name}</option>
-                    ))}
+                    {warehouses
+                      .filter((w) => w.id !== selectedWarehouseId)
+                      .map((w) => (
+                        <option key={w.id} value={w.id}>{w.name}</option>
+                      ))}
                   </select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="transBin">Destination Bin</Label>
-                    <Input
-                      id="transBin"
-                      placeholder="e.g. BIN-X2"
+                    <Label htmlFor="transZone">Destination Zone</Label>
+                    <select
+                      id="transZone"
+                      value={transToZoneId}
+                      onChange={(e) => {
+                        const newZoneId = e.target.value
+                        setTransToZoneId(newZoneId)
+                        const zoneBins = binLocations.filter(
+                          (b) => b.warehouseId === transToWhId && b.zoneId === newZoneId
+                        )
+                        setTransToBin(zoneBins[0]?.code || "")
+                      }}
+                      className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      {zones
+                        .filter((z) => z.warehouseId === transToWhId)
+                        .map((z) => (
+                          <option key={z.id} value={z.id}>{z.name}</option>
+                        ))}
+                      {zones.filter((z) => z.warehouseId === transToWhId).length === 0 && (
+                        <option value="">No Zones Configured</option>
+                      )}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="transBinSelect">Destination Bin</Label>
+                    <select
+                      id="transBinSelect"
                       value={transToBin}
                       onChange={(e) => setTransToBin(e.target.value)}
-                      className="rounded-xl"
-                    />
+                      className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      {binLocations
+                        .filter((b) => b.warehouseId === transToWhId && b.zoneId === transToZoneId)
+                        .map((b) => (
+                          <option key={b.id} value={b.code}>{b.code}</option>
+                        ))}
+                      {binLocations.filter((b) => b.warehouseId === transToWhId && b.zoneId === transToZoneId).length === 0 && (
+                        <option value="">No Bins Configured</option>
+                      )}
+                    </select>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="transQty">Transfer Quantity</Label>
                     <Input

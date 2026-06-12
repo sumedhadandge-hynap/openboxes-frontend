@@ -1,13 +1,45 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Package, Truck, AlertTriangle, CheckCircle2, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react"
+import { useWarehouseStore } from "@/store/useWarehouseStore"
 
 export function Dashboard() {
+  const { products, warehouses, inventory, shipments, selectedWarehouseId } = useWarehouseStore()
+
+  // Calculate dynamic stats scoped to selectedWarehouseId
+  const activeInventory = inventory.filter((item) => item.warehouseId === selectedWarehouseId)
+  const totalQty = activeInventory.reduce((sum, item) => sum + item.quantityOnHand, 0)
+
+  const activeShipments = shipments.filter(
+    (s) =>
+      s.status !== "Received" &&
+      s.status !== "Cancelled" &&
+      ((s.type === "Inbound" && s.destination === selectedWarehouseId) ||
+        (s.type === "Outbound" && s.origin === selectedWarehouseId))
+  )
+  const shipmentsCount = activeShipments.length
+
+  const lowStockProducts = products.filter((p) => {
+    const stock = inventory
+      .filter((item) => item.productId === p.id && item.warehouseId === selectedWarehouseId)
+      .reduce((sum, item) => sum + item.quantityOnHand, 0)
+    return stock < p.minLevel
+  })
+  const criticalAlertsCount = lowStockProducts.length
+
+  const fulfilledShipments = shipments.filter(
+    (s) =>
+      s.status === "Received" &&
+      ((s.type === "Inbound" && s.destination === selectedWarehouseId) ||
+        (s.type === "Outbound" && s.origin === selectedWarehouseId))
+  )
+  const fulfilledCount = fulfilledShipments.length
+
   const stats = [
     {
       title: "Total Inventory",
-      value: "24,892",
+      value: `${totalQty.toLocaleString()}`,
       icon: Package,
-      trend: "+12.5%",
+      trend: "+4.1%",
       positive: true,
       description: "items in stock",
       color: "from-blue-500/20 to-indigo-500/20",
@@ -15,35 +47,53 @@ export function Dashboard() {
     },
     {
       title: "Active Shipments",
-      value: "142",
+      value: `${shipmentsCount}`,
       icon: Truck,
       trend: "+8.2%",
       positive: true,
-      description: "en route today",
+      description: "en route / picking",
       color: "from-emerald-500/20 to-teal-500/20",
       textColor: "text-emerald-500"
     },
     {
       title: "Critical Alerts",
-      value: "18",
+      value: `${criticalAlertsCount}`,
       icon: AlertTriangle,
-      trend: "-2.4%",
+      trend: "-12.5%",
       positive: true,
-      description: "needs attention",
+      description: "below safety level",
       color: "from-rose-500/20 to-orange-500/20",
       textColor: "text-rose-500"
     },
     {
-      title: "Fulfilled Orders",
-      value: "1,284",
+      title: "Fulfilled Shipments",
+      value: `${fulfilledCount}`,
       icon: CheckCircle2,
-      trend: "-1.1%",
-      positive: false,
-      description: "this month",
+      trend: "+1.2%",
+      positive: true,
+      description: "completed logs",
       color: "from-purple-500/20 to-pink-500/20",
       textColor: "text-purple-500"
     },
   ]
+
+  const activeWhName = warehouses.find((w) => w.id === selectedWarehouseId)?.name || "Selected Facility"
+
+  const recentActivities = shipments
+    .filter((s) => s.destination === selectedWarehouseId || s.origin === selectedWarehouseId)
+    .slice(0, 4)
+    .map((s) => {
+      const isOutbound = s.type === "Outbound"
+      const dateStr = s.receivedDate || s.shippedDate || "Recently"
+      return {
+        id: s.id,
+        title: isOutbound ? "Shipment Dispatched" : "Shipment Received",
+        description: isOutbound
+          ? `Cargo ${s.shipmentNumber} pick/packed and dispatched to project ${s.destination}.`
+          : `Cargo ${s.shipmentNumber} checked-in at ${activeWhName} from ${s.origin}.`,
+        time: dateStr,
+      }
+    })
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -101,68 +151,67 @@ export function Dashboard() {
         <Card className="col-span-4 border-0 bg-background/40 backdrop-blur-sm shadow-lg overflow-hidden relative group">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <CardHeader>
-            <CardTitle className="text-xl font-bold">Activity Feed</CardTitle>
+            <CardTitle className="text-xl font-bold">Activity Feed ({activeWhName})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-muted before:to-transparent">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+              {recentActivities.map((act) => (
+                <div key={act.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                   <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-muted-foreground/10 text-muted-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary/20">
                     <Truck className="h-4 w-4" />
                   </div>
                   <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl border border-white/5 bg-background/50 backdrop-blur shadow-sm transition-all hover:shadow-md hover:bg-background/80">
                     <div className="flex items-center justify-between mb-1">
-                      <div className="font-bold text-primary">Shipment Received</div>
-                      <time className="text-xs font-medium text-muted-foreground">{i}h ago</time>
+                      <div className="font-bold text-primary">{act.title}</div>
+                      <time className="text-xs font-medium text-muted-foreground">{act.time}</time>
                     </div>
                     <div className="text-sm text-foreground/80 leading-snug">
-                      Central Hub processed 5,000 units of critical inventory.
+                      {act.description}
                     </div>
                   </div>
                 </div>
               ))}
+              {recentActivities.length === 0 && (
+                <div className="text-center py-10 text-muted-foreground italic text-sm">
+                  No recent shipment logs recorded for this warehouse.
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
         
         <Card className="col-span-3 border-0 bg-background/40 backdrop-blur-sm shadow-lg overflow-hidden group">
-           <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <CardHeader>
-            <CardTitle className="text-xl font-bold">Facility Capacity</CardTitle>
+            <CardTitle className="text-xl font-bold">Warehouse Capacities</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col gap-8 mt-2">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold">Main Warehouse</span>
-                  <span className="text-sm font-semibold text-primary">82%</span>
-                </div>
-                <div className="h-3 w-full bg-muted overflow-hidden rounded-full p-0.5">
-                  <div className="h-full bg-gradient-to-r from-primary to-orange-400 rounded-full w-[82%] relative">
-                    <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full" />
+            <div className="flex flex-col gap-6 mt-2">
+              {warehouses.map((wh) => {
+                const isActive = wh.id === selectedWarehouseId
+                return (
+                  <div key={wh.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className={`font-bold text-sm ${isActive ? "text-primary" : "text-foreground/80"}`}>
+                        {wh.name.split(" ")[0]} {isActive && "(Active)"}
+                      </span>
+                      <span className={`text-xs font-semibold ${isActive ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                        {wh.capacity}%
+                      </span>
+                    </div>
+                    <div className="h-3 w-full bg-muted overflow-hidden rounded-full p-0.5">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isActive
+                            ? "bg-gradient-to-r from-primary to-orange-400"
+                            : "bg-muted-foreground/30"
+                        }`}
+                        style={{ width: `${wh.capacity}%` }}
+                      />
+                    </div>
                   </div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold">Cold Storage</span>
-                  <span className="text-sm font-semibold text-amber-500">45%</span>
-                </div>
-                <div className="h-3 w-full bg-muted overflow-hidden rounded-full p-0.5">
-                  <div className="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full w-[45%]" />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold">Distribution Hub</span>
-                  <span className="text-sm font-semibold text-emerald-500">28%</span>
-                </div>
-                <div className="h-3 w-full bg-muted overflow-hidden rounded-full p-0.5">
-                  <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full w-[28%]" />
-                </div>
-              </div>
+                )
+              })}
             </div>
           </CardContent>
         </Card>

@@ -16,7 +16,7 @@ import {
 import { Label } from "@/components/ui/label"
 
 export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outbound" }) {
-  const { shipments, warehouses, products, createShipment } = useWarehouseStore()
+  const { shipments, warehouses, products, createShipment, selectedWarehouseId } = useWarehouseStore()
   const [activeTab, setActiveTab] = useState<"Inbound" | "Outbound">(defaultType || "Inbound")
   const [searchTerm, setSearchTerm] = useState("")
   
@@ -50,15 +50,15 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
     setShipmentItems(shipmentItems.filter((_, idx) => idx !== index))
   }
 
-  const handleRowChange = (index: number, field: string, value: any) => {
+  const handleRowChange = (index: number, field: string, value: string | number) => {
     const updated = [...shipmentItems]
     updated[index] = { ...updated[index], [field]: value }
     setShipmentItems(updated)
   }
 
   const openCreateDialog = () => {
-    setOrigin(activeTab === "Inbound" ? "" : warehouses[0]?.id || "")
-    setDestination(activeTab === "Inbound" ? warehouses[0]?.id || "" : "")
+    setOrigin(activeTab === "Inbound" ? "" : selectedWarehouseId || warehouses[0]?.id || "")
+    setDestination(activeTab === "Inbound" ? selectedWarehouseId || warehouses[0]?.id || "" : "")
     setCarrier("")
     setTrackingNumber("")
     setShipmentItems([{ productId: products[0]?.id || "", quantity: 10, lotNumber: "", expirationDate: "" }])
@@ -94,11 +94,12 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
   // Filter shipments
   const filteredShipments = shipments.filter((s) => {
     if (s.type !== activeTab) return false
+    const matchesWh = activeTab === "Inbound" ? s.destination === selectedWarehouseId : s.origin === selectedWarehouseId
     const matchesSearch =
       s.shipmentNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.destination.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesSearch
+    return matchesWh && matchesSearch
   })
 
   // Status Styling helper
@@ -294,7 +295,7 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
                   {activeTab === "Inbound" ? (
                     <Input
                       id="shipOrigin"
-                      placeholder="e.g. Global Pharma Inc"
+                      placeholder="e.g. Siemens India Ltd."
                       value={origin}
                       onChange={(e) => setOrigin(e.target.value)}
                       required
@@ -304,8 +305,9 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
                     <select
                       id="shipOrigin"
                       value={origin}
+                      disabled
                       onChange={(e) => setOrigin(e.target.value)}
-                      className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring cursor-not-allowed opacity-70"
                     >
                       {warehouses.map((w) => (
                         <option key={w.id} value={w.id}>{w.name}</option>
@@ -315,14 +317,15 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="shipDest">
-                    {activeTab === "Inbound" ? "Destination Facility *" : "Destination Customer/Hospital *"}
+                    {activeTab === "Inbound" ? "Destination Facility *" : "Destination Customer/Project Site *"}
                   </Label>
                   {activeTab === "Inbound" ? (
                     <select
                       id="shipDest"
                       value={destination}
+                      disabled
                       onChange={(e) => setDestination(e.target.value)}
-                      className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring cursor-not-allowed opacity-70"
                     >
                       {warehouses.map((w) => (
                         <option key={w.id} value={w.id}>{w.name}</option>
@@ -331,7 +334,7 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
                   ) : (
                     <Input
                       id="shipDest"
-                      placeholder="e.g. City General Hospital"
+                      placeholder="e.g. Mumbai Metro Project Site"
                       value={destination}
                       onChange={(e) => setDestination(e.target.value)}
                       required

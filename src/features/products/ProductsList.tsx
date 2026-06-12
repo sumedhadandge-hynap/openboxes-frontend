@@ -17,7 +17,7 @@ import {
 import { Label } from "@/components/ui/label"
 
 export function ProductsList() {
-  const { products, inventory, addProduct, updateProduct } = useWarehouseStore()
+  const { products, inventory, addProduct, updateProduct, categories: storeCategories, uoms: storeUoms } = useWarehouseStore()
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("All")
   
@@ -28,23 +28,12 @@ export function ProductsList() {
   // Form fields
   const [sku, setSku] = useState("")
   const [name, setName] = useState("")
-  const [category, setCategory] = useState("Medications")
-  const [unitOfMeasure, setUnitOfMeasure] = useState("Box")
-  const [minLevel, setMinLevel] = useState(100)
+  const [category, setCategory] = useState(storeCategories[0]?.name || "Sprinklers")
+  const [unitOfMeasure, setUnitOfMeasure] = useState(storeUoms[0]?.name || "Each")
+  const [minLevel, setMinLevel] = useState(10)
   const [status, setStatus] = useState<"Active" | "Inactive">("Active")
   const [description, setDescription] = useState("")
 
-  const openAddDialog = () => {
-    setEditingProduct(null)
-    setSku("")
-    setName("")
-    setCategory("Medications")
-    setUnitOfMeasure("Box")
-    setMinLevel(100)
-    setStatus("Active")
-    setDescription("")
-    setIsOpen(true)
-  }
 
   const openEditDialog = (product: Product) => {
     setEditingProduct(product)
@@ -97,7 +86,7 @@ export function ProductsList() {
     return matchesSearch && matchesCategory
   })
 
-  const categories = ["All", ...Array.from(new Set(products.map((p) => p.category)))]
+  const categories = ["All", ...storeCategories.map((c) => c.name)]
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -107,12 +96,14 @@ export function ProductsList() {
             Product Catalog
           </h2>
           <p className="text-muted-foreground mt-1">
-            Manage your master list of medical items, track SKU codes, categories, and min stock requirements.
+            Manage your master list of fire protection equipment, track SKU codes, categories, and safety stock thresholds.
           </p>
         </div>
-        <Button onClick={openAddDialog} className="rounded-xl shadow-lg shadow-primary/20">
-          <Plus className="mr-2 h-4 w-4" /> Add Product
-        </Button>
+        <Link to="/products/create">
+          <Button className="rounded-xl shadow-lg shadow-primary/20">
+            <Plus className="mr-2 h-4 w-4" /> Add Product
+          </Button>
+        </Link>
       </div>
 
       {/* Filters Card */}
@@ -261,7 +252,7 @@ export function ProductsList() {
                   <Label htmlFor="name">Product Name *</Label>
                   <Input
                     id="name"
-                    placeholder="e.g. Amoxicillin 500mg"
+                    placeholder="e.g. Pendent Fire Sprinkler 68°C"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
@@ -279,11 +270,12 @@ export function ProductsList() {
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
-                    <option value="Medications">Medications</option>
-                    <option value="Consumables">Consumables</option>
-                    <option value="Fluids">Fluids</option>
-                    <option value="PPE">PPE</option>
-                    <option value="Equipment">Equipment</option>
+                    {storeCategories.map((cat) => (
+                      <option key={cat.id} value={cat.name}>{cat.name}</option>
+                    ))}
+                    {storeCategories.length === 0 && (
+                      <option value="Sprinklers">Sprinklers</option>
+                    )}
                   </select>
                 </div>
                 <div className="space-y-1.5">
@@ -294,11 +286,12 @@ export function ProductsList() {
                     onChange={(e) => setUnitOfMeasure(e.target.value)}
                     className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
-                    <option value="Box">Box</option>
-                    <option value="Pack">Pack</option>
-                    <option value="Bag">Bag</option>
-                    <option value="Bottle">Bottle</option>
-                    <option value="Each">Each</option>
+                    {storeUoms.map((uom) => (
+                      <option key={uom.id} value={uom.name}>{uom.name}</option>
+                    ))}
+                    {storeUoms.length === 0 && (
+                      <option value="Each">Each</option>
+                    )}
                   </select>
                 </div>
               </div>
@@ -333,7 +326,7 @@ export function ProductsList() {
                 <Label htmlFor="description">Product Description</Label>
                 <textarea
                   id="description"
-                  placeholder="Describe the clinical application, pack sizing, storage requirements..."
+                  placeholder="Describe the fire safety specifications, certifications, installation guidelines..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full min-h-[80px] p-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"

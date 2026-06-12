@@ -1,6 +1,6 @@
 import { Outlet, Navigate } from "react-router-dom"
 import { useAuthStore } from "@/store/useAuthStore"
-import { Package } from "lucide-react"
+import { Flame } from "lucide-react"
 
 export function AuthLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -18,18 +18,18 @@ export function AuthLayout() {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: 'url(/auth-bg.png)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
         <div className="absolute bottom-12 left-12 right-12 text-white">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sm font-medium mb-6">
             <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
-            System Status: Operational
+            Warehouse Logistics System: Operational
           </div>
           <h1 className="text-5xl font-semibold tracking-tight text-white mb-4 drop-shadow-lg">
-            Intelligent Supply Chain.
+            Fire Protection Supply Chain.
           </h1>
-          <p className="text-lg text-white/80 max-w-xl font-medium drop-shadow-md">
-            The control center for your global inventory. Secure, scalable, and beautifully designed.
+          <p className="text-base text-white/80 max-w-xl font-medium drop-shadow-md leading-relaxed">
+            The logistics control center for Fireplan Systems & Projects Pvt. Ltd. Coordinate warehouses, track cylinders hydrostatic certs, staging project hardware, and purchase orders.
           </p>
         </div>
       </div>
@@ -50,16 +50,16 @@ export function AuthLayout() {
             
             <div className="flex items-center gap-3 mb-8 justify-center">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-orange-500 shadow-md shadow-primary/20">
-                <Package className="h-6 w-6 text-white" />
+                <Flame className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold tracking-tight">OpenBoxes<span className="text-primary">.</span></span>
+              <span className="text-2xl font-bold tracking-tight">Fireplan<span className="text-primary">WMS</span></span>
             </div>
 
             <Outlet />
           </div>
           
           <div className="mt-6 text-center text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} OpenBoxes Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} Fireplan Systems & Projects Pvt. Ltd. All rights reserved.
           </div>
         </div>
 

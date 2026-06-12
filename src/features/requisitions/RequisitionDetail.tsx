@@ -155,7 +155,7 @@ export function RequisitionDetail() {
             <div>
               <h4 className="font-bold text-emerald-950 dark:text-emerald-200">Requisition Cycle Completed</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                All items have been picked, shipped, and successfully received at the destination ward.
+                All items have been picked, shipped, and successfully received at the destination facility.
               </p>
             </div>
           </CardContent>
@@ -173,7 +173,7 @@ export function RequisitionDetail() {
           <CardContent className="space-y-4 text-sm">
             <div className="space-y-1.5 py-2 border-b border-white/5">
               <span className="text-muted-foreground flex items-center gap-1.5">
-                <MapPin className="h-4 w-4" /> Requesting Ward (Origin)
+                <MapPin className="h-4 w-4" /> Requesting Depot (Origin)
               </span>
               <div className="font-bold">{getWarehouseName(requisition.originWarehouseId)}</div>
             </div>

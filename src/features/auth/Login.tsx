@@ -57,7 +57,7 @@ export function Login() {
             <Input
               id="email"
               type="email"
-              placeholder="admin@openboxes.com"
+              placeholder="admin@fireplansystems.com"
               {...register("email")}
               className={`h-12 pl-12 pr-4 shadow-sm bg-muted/40 border-muted-foreground/10 rounded-xl transition-all focus:bg-background ${errors.email ? "border-destructive focus-visible:ring-destructive" : "focus-visible:ring-primary focus-visible:border-primary"}`}
             />

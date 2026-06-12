@@ -44,14 +44,14 @@ export function RequisitionsList() {
     setReqItems(reqItems.filter((_, idx) => idx !== index))
   }
 
-  const handleRowChange = (index: number, field: string, value: any) => {
+  const handleRowChange = (index: number, field: string, value: string | number) => {
     const updated = [...reqItems]
     updated[index] = { ...updated[index], [field]: value }
     setReqItems(updated)
   }
 
   const openCreateDialog = () => {
-    setOriginWarehouseId(warehouses.find((w) => w.type === "Pharmacy" || w.type === "Clinic")?.id || warehouses[1]?.id || "")
+    setOriginWarehouseId(warehouses.find((w) => w.type === "Laboratory" || w.type === "Filling Station")?.id || warehouses[1]?.id || "")
     setDestinationWarehouseId(warehouses.find((w) => w.type === "Warehouse")?.id || warehouses[0]?.id || "")
     setRequestedBy("")
     setUrgency("Medium")
@@ -142,7 +142,7 @@ export function RequisitionsList() {
             Stock Requisitions
           </h2>
           <p className="text-muted-foreground mt-1">
-            Request inventory for wards and clinics, approve incoming orders, and track fulfillment cycles.
+            Request inventory for engineering depots and laboratories, approve incoming orders, and track fulfillment cycles.
           </p>
         </div>
         <Button onClick={openCreateDialog} className="rounded-xl shadow-lg shadow-primary/20">
@@ -171,7 +171,7 @@ export function RequisitionsList() {
               <tr className="border-b border-white/10 text-xs text-muted-foreground uppercase tracking-wider bg-background/20">
                 <th className="p-4 font-semibold">Request #</th>
                 <th className="p-4 font-semibold">Requestor</th>
-                <th className="p-4 font-semibold">Origin Ward</th>
+                <th className="p-4 font-semibold">Origin Depot</th>
                 <th className="p-4 font-semibold">Serving Warehouse</th>
                 <th className="p-4 font-semibold">Urgency</th>
                 <th className="p-4 font-semibold">Status</th>
@@ -233,14 +233,14 @@ export function RequisitionsList() {
             <DialogHeader>
               <DialogTitle className="text-xl font-bold">New Inventory Request</DialogTitle>
               <DialogDescription>
-                Submit a new request for items to be dispatched to a ward or pharmacy location.
+                Submit a new request for items to be dispatched to an active warehouse or laboratory depot.
               </DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="reqOrigin">Requesting Ward (Origin) *</Label>
+                  <Label htmlFor="reqOrigin">Requesting Depot (Origin) *</Label>
                   <select
                     id="reqOrigin"
                     value={originWarehouseId}
@@ -284,7 +284,7 @@ export function RequisitionsList() {
                   <select
                     id="urgency"
                     value={urgency}
-                    onChange={(e) => setUrgency(e.target.value as any)}
+                    onChange={(e) => setUrgency(e.target.value as "High" | "Medium" | "Low")}
                     className="w-full h-10 px-3 rounded-xl border border-input bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
                     <option value="Low">Low Priority</option>

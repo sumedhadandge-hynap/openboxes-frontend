@@ -19,30 +19,107 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   BarChart3,
-  ListChecks
+  ListChecks,
+  Flame,
+  FileSpreadsheet,
+  Truck
 } from "lucide-react"
 import { useAuthStore } from "@/store/useAuthStore"
+import { useWarehouseStore } from "@/store/useWarehouseStore"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 
 export function AppLayout() {
   const { pathname } = useLocation()
   const logout = useAuthStore((state) => state.logout)
   const user = useAuthStore((state) => state.user)
+  const { warehouses, selectedWarehouseId, setSelectedWarehouseId } = useWarehouseStore()
+  const activeWarehouse = warehouses.find((w) => w.id === selectedWarehouseId)
+
+  const handleLogout = () => {
+    setSelectedWarehouseId(null)
+    logout()
+  }
 
   const isAccessControlActive = pathname.startsWith("/users") || pathname.startsWith("/roles") || pathname.startsWith("/permissions")
   const [isAccessControlOpen, setIsAccessControlOpen] = useState(isAccessControlActive)
 
   const operationsNavigation = [
-    { name: "Inventory", href: "/inventory", icon: Box },
-    { name: "Purchasing", href: "/requisitions", icon: ClipboardList },
-    { name: "Inbound", href: "/inbound", icon: ArrowDownLeft },
-    { name: "Outbound", href: "/outbound", icon: ArrowUpRight },
-    { name: "Reporting", href: "/reporting", icon: BarChart3 },
-    { name: "Products", href: "/products", icon: Package },
-    { name: "Stocklists", href: "/stocklists", icon: ListChecks },
-    { name: "Facilities", href: "/warehouses", icon: Warehouse },
-    { name: "Preferences", href: "/settings", icon: Settings },
+    { name: "Items & Products", href: "/products", icon: Package },
+    { name: "Current Stock Levels", href: "/inventory/stock", icon: Box },
+    { name: "Stock Adjustments", href: "/inventory", icon: ClipboardList },
+    { name: "Procurement Overview", href: "/procurement", icon: FileSpreadsheet },
+    { name: "Supplier Orders (POs)", href: "/purchase-orders", icon: ClipboardList },
+    { name: "Inbound & Outbound", href: "/shipments", icon: Truck },
+    { name: "Receive Shipments (GRN)", href: "/grn", icon: ArrowDownLeft },
+    { name: "Dispatch Materials", href: "/dispatch", icon: ArrowUpRight },
+    { name: "Project Materials", href: "/projects", icon: ListChecks },
+    { name: "Warehouses & Facilities", href: "/warehouses", icon: Warehouse },
+    { name: "Reports & Charts", href: "/reports", icon: BarChart3 },
+    { name: "Settings", href: "/settings", icon: Settings },
   ]
+
+  if (!selectedWarehouseId) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-br from-background via-background/95 to-primary/10 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-1/4 left-1/4 h-[300px] w-[300px] rounded-full bg-primary/5 blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 h-[300px] w-[300px] rounded-full bg-orange-500/5 blur-[120px]" />
+
+        <div className="w-full max-w-4xl space-y-8 animate-in fade-in zoom-in-95 duration-500">
+          <div className="text-center space-y-3">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-xl shadow-primary/30 animate-pulse mx-auto mb-4">
+              <Flame className="h-10 w-10" />
+            </div>
+            <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+              Welcome to Fireplan WMS
+            </h1>
+            <p className="text-muted-foreground text-lg max-w-md mx-auto">
+              Please select an active facility or warehouse to begin managing inventory, orders, and dispatches.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {warehouses.map((wh) => (
+              <Card
+                key={wh.id}
+                onClick={() => setSelectedWarehouseId(wh.id)}
+                className="group relative overflow-hidden border border-white/5 bg-background/30 backdrop-blur-md hover:bg-background/60 hover:border-primary/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer p-6 rounded-3xl"
+              >
+                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Warehouse className="h-20 w-20 text-primary" />
+                </div>
+
+                <span className="text-xs font-mono text-primary font-bold uppercase tracking-wider bg-primary/10 px-2.5 py-1 rounded-full">
+                  {wh.code}
+                </span>
+                
+                <h3 className="font-bold text-lg text-foreground mt-4 group-hover:text-primary transition-colors">
+                  {wh.name}
+                </h3>
+                
+                <div className="text-xs text-muted-foreground space-y-1.5 mt-4 border-t border-white/5 pt-3">
+                  <div>Type: <span className="font-semibold text-foreground/80">{wh.type}</span></div>
+                  <div className="truncate">Location: <span className="font-semibold text-foreground/80">{wh.location}</span></div>
+                  <div>Manager: <span className="font-semibold text-foreground/80">{wh.manager}</span></div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Button
+              variant="ghost"
+              className="text-xs text-muted-foreground hover:text-destructive rounded-xl"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-3.5 w-3.5 mr-2" /> Log out of Fireplan
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen w-full relative overflow-hidden bg-transparent">
@@ -50,10 +127,10 @@ export function AppLayout() {
       <aside className="fixed inset-y-4 left-4 z-20 hidden w-[260px] flex-col rounded-3xl glass sm:flex overflow-hidden">
         <div className="flex h-20 items-center px-6 mt-2">
           <Link to="/" className="flex items-center gap-3 font-bold text-xl tracking-tight">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
-              <Package className="h-6 w-6" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 animate-pulse">
+              <Flame className="h-6 w-6" />
             </div>
-            <span>OpenBoxes<span className="text-primary">.</span></span>
+            <span>Fireplan<span className="text-primary">WMS</span></span>
           </Link>
         </div>
         
@@ -148,19 +225,21 @@ export function AppLayout() {
             
             <p className="px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-8 mb-4">Operations</p>
             {operationsNavigation.map((item) => {
-              const isActive = pathname.startsWith(item.href)
+              const isActive = item.href === "/inventory"
+                ? pathname === "/inventory"
+                : pathname.startsWith(item.href)
               return (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`group flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300 ${
+                  className={`group flex items-center justify-between rounded-xl px-4 py-2 transition-all duration-200 ${
                     isActive 
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
-                      : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 font-bold" 
+                      : "text-muted-foreground hover:bg-muted/85 hover:text-foreground text-sm font-medium"
                   }`}
                 >
-                  <div className="flex items-center gap-3 font-medium">
-                    <item.icon className={`h-5 w-5 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
+                  <div className="flex items-center gap-3">
+                    <item.icon className={`h-4.5 w-4.5 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
                     {item.name}
                   </div>
                 </Link>
@@ -174,14 +253,14 @@ export function AppLayout() {
           <div className="flex items-center justify-between rounded-2xl bg-muted/50 p-3 backdrop-blur-md border border-white/10">
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-orange-400 text-white font-bold shadow-inner">
-                {user?.name?.charAt(0) || "A"}
+                {user?.name?.charAt(0) || "F"}
               </div>
               <div className="flex flex-col overflow-hidden">
-                <span className="text-sm font-semibold truncate">{user?.name || "Admin User"}</span>
-                <span className="text-xs text-muted-foreground truncate">{user?.email || "admin@example.com"}</span>
+                <span className="text-sm font-semibold truncate">{user?.name || "Fireplan Admin"}</span>
+                <span className="text-xs text-muted-foreground truncate">{user?.email || "admin@fireplansystems.com"}</span>
               </div>
             </div>
-            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-destructive/10 hover:text-destructive transition-colors rounded-xl" onClick={logout}>
+            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-destructive/10 hover:text-destructive transition-colors rounded-xl" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -196,13 +275,31 @@ export function AppLayout() {
             <Button variant="outline" size="icon" className="rounded-xl border-white/20">
               <Menu className="h-5 w-5" />
             </Button>
-            <span className="font-bold">OpenBoxes.</span>
+            <span className="font-bold flex items-center gap-1.5"><Flame className="h-5 w-5 text-primary" /> Fireplan WMS</span>
           </div>
           
           <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground font-medium">
             <span>Workspace</span>
             <ChevronRight className="h-4 w-4 opacity-50" />
-            <span className="text-foreground capitalize">{pathname.split('/')[1] || 'Dashboard'}</span>
+            <span className="text-foreground capitalize mr-2">{pathname.split('/')[1]?.replace("-", " ") || 'Dashboard'}</span>
+            
+            <ChevronRight className="h-4 w-4 opacity-50" />
+            
+            <div className="flex items-center gap-2 bg-background/50 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold">
+              <Warehouse className="h-4 w-4 text-primary shrink-0" />
+              <select
+                value={selectedWarehouseId || ""}
+                onChange={(e) => setSelectedWarehouseId(e.target.value)}
+                className="bg-transparent border-none text-foreground font-bold focus:outline-none focus:ring-0 cursor-pointer pr-1 text-xs appearance-none"
+              >
+                {warehouses.map((wh) => (
+                  <option key={wh.id} value={wh.id} className="bg-[#18181b] text-white font-semibold">
+                    {wh.code} - {wh.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground opacity-70 shrink-0 pointer-events-none" />
+            </div>
           </div>
           
           <div className="flex items-center gap-4 ml-auto">
@@ -210,7 +307,7 @@ export function AppLayout() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="search"
-                placeholder="Search everywhere..."
+                placeholder={`Search ${activeWarehouse?.code || "warehouse"} inventory...`}
                 className="w-[280px] rounded-full bg-muted/50 border border-white/10 pl-10 pr-4 py-2 text-sm font-medium transition-all focus:w-[320px] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-background"
               />
             </div>

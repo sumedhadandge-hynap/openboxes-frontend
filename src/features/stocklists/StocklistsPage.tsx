@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { ListChecks, HeartPulse, Plus, Search, Eye, ShoppingCart } from "lucide-react"
+import { ListChecks, Plus, Search, Eye, ShoppingCart, Wrench } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -31,38 +31,35 @@ interface Stocklist {
 const initialStocklists: Stocklist[] = [
   {
     id: "SL-001",
-    name: "Emergency Room Crash Cart",
-    facility: "Central Warehouse",
-    itemsCount: 4,
+    name: "Standard Sprinkler Installation Kit",
+    facility: "Central Piping & Heavy Warehouse",
+    itemsCount: 3,
     urgency: "High",
     items: [
-      { sku: "AMX-250", name: "Amoxicillin 250mg", targetQty: 100, uom: "Bottles" },
-      { sku: "SYR-5ML", name: "Sterile Syringes 5ml", targetQty: 500, uom: "Boxes" },
-      { sku: "PAR-500", name: "Paracetamol 500mg", targetQty: 250, uom: "Tablets" },
-      { sku: "NS-1L", name: "Normal Saline 1L", targetQty: 50, uom: "Bags" },
+      { sku: "SPR-PEND-68", name: "Pendent Fire Sprinkler 68°C", targetQty: 200, uom: "Each" },
+      { sku: "VAL-BTFY-04", name: "Grooved Butterfly Valve 4\"", targetQty: 10, uom: "Each" },
+      { sku: "FAP-ADDR-08", name: "Addressable Fire Alarm Panel 8-Loop", targetQty: 2, uom: "Each" },
     ],
   },
   {
     id: "SL-002",
-    name: "Pediatric Ward Daily Replenishment",
-    facility: "Pharmacy Ward",
-    itemsCount: 3,
+    name: "Site Hydrant Maintenance Kit",
+    facility: "Electronics & Instrument Lab",
+    itemsCount: 2,
     urgency: "Medium",
     items: [
-      { sku: "AMX-250", name: "Amoxicillin 250mg", targetQty: 80, uom: "Bottles" },
-      { sku: "PAR-500", name: "Paracetamol 500mg", targetQty: 150, uom: "Tablets" },
-      { sku: "MASK-SURG", name: "Surgical Masks", targetQty: 200, uom: "Boxes" },
+      { sku: "EXT-CO2-45", name: "CO2 Fire Extinguisher 4.5kg", targetQty: 50, uom: "Each" },
+      { sku: "VAL-BTFY-04", name: "Grooved Butterfly Valve 4\"", targetQty: 5, uom: "Each" },
     ],
   },
   {
     id: "SL-003",
-    name: "Cold Chain Storage Vaccine Kit",
-    facility: "Cold Storage Hub",
-    itemsCount: 2,
+    name: "Gas Suppression Station Setup Pack",
+    facility: "Gas Filling & Suppression Station",
+    itemsCount: 1,
     urgency: "High",
     items: [
-      { sku: "SYR-5ML", name: "Sterile Syringes 5ml", targetQty: 1000, uom: "Boxes" },
-      { sku: "NS-1L", name: "Normal Saline 1L", targetQty: 100, uom: "Bags" },
+      { sku: "CYL-FM200-80", name: "FM200 Suppression Cylinder 80L", targetQty: 15, uom: "Cylinders" },
     ],
   },
 ]
@@ -85,10 +82,10 @@ export function StocklistsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
-            Stocklists Preset templates
+            Stocklists Preset Templates
           </h2>
           <p className="text-muted-foreground mt-1">
-            Preset lists of required inventory items and baseline quantities for specific wards and facilities.
+            Preset lists of required installation inventory and baseline quantities for specific engineering projects.
           </p>
         </div>
         <Button className="rounded-xl shadow-lg shadow-primary/20">
@@ -134,11 +131,11 @@ export function StocklistsPage() {
               <div className="flex items-center justify-between border-t border-white/5 pt-4 text-xs">
                 <span className="text-muted-foreground font-semibold flex items-center gap-1">
                   <ListChecks className="h-4 w-4 text-primary" />
-                  {list.itemsCount} Items Prescribed
+                  {list.itemsCount} Items Configured
                 </span>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => setSelectedStocklist(list)} className="rounded-xl h-8 border-white/10 text-xs">
-                    <Eye className="h-3 w-3 mr-1" /> View items
+                    <Eye className="h-3 w-3 mr-1" /> View Items
                   </Button>
                 </div>
               </div>
@@ -154,7 +151,7 @@ export function StocklistsPage() {
             <>
               <DialogHeader>
                 <div className="flex items-center gap-2">
-                  <HeartPulse className="h-5 w-5 text-primary" />
+                  <Wrench className="h-5 w-5 text-primary" />
                   <DialogTitle className="text-xl font-bold">{selectedStocklist.name}</DialogTitle>
                 </div>
                 <DialogDescription>
