@@ -40,29 +40,29 @@ export function WarehouseDetail() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <Link to="/warehouses">
           <Button variant="ghost" size="icon" className="rounded-xl hover:bg-primary/10 hover:text-primary shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
               {warehouse.name}
             </h2>
             <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 rounded-md font-mono font-bold">
               {warehouse.code}
             </Badge>
           </div>
-          <p className="text-muted-foreground mt-0.5">
+          <p className="text-muted-foreground mt-0.5 text-sm sm:text-base">
             Detailed storage capacity, physical assets ledger, and freight tracking log.
           </p>
         </div>
       </div>
 
       {/* Overview stats */}
-      <div className="grid gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="border border-white/5 bg-background/20 backdrop-blur-sm p-5 rounded-2xl flex items-center gap-4">
           <div className="p-3.5 bg-primary/10 text-primary rounded-xl shrink-0">
             <WarehouseIcon className="h-6 w-6" />
@@ -113,7 +113,8 @@ export function WarehouseDetail() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              {/* Desktop Table View */}
+              <table className="w-full text-left border-collapse hidden md:table">
                 <thead>
                   <tr className="border-b border-white/5 text-[10px] text-muted-foreground uppercase font-bold bg-background/20">
                     <th className="p-3 pl-6">Product Item</th>
@@ -150,6 +151,36 @@ export function WarehouseDetail() {
                   )}
                 </tbody>
               </table>
+
+              {/* Mobile / Tablet Grid View */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 md:hidden">
+                {whInventory.map((item) => {
+                  const prod = getProductDetails(item.productId)
+                  return (
+                    <div key={item.id} className="bg-background/40 border border-white/5 rounded-xl p-3 flex flex-col gap-2">
+                      <div className="flex justify-between items-start">
+                        <div className="min-w-0 pr-2">
+                          <span className="font-mono text-[10px] text-muted-foreground font-bold block truncate">{prod.sku}</span>
+                          <div className="font-bold text-foreground text-sm line-clamp-2">{prod.name}</div>
+                        </div>
+                        <div className="text-right shrink-0 ml-2">
+                          <div className="font-black text-foreground text-base leading-none">{item.quantityOnHand}</div>
+                          <div className="text-[10px] text-muted-foreground mt-0.5">{prod.unitOfMeasure}s</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center text-xs mt-1 pt-2 border-t border-white/5">
+                        <div className="font-mono font-semibold text-muted-foreground">Lot: {item.lotNumber}</div>
+                        <div className="font-semibold text-primary">Bin: {item.binLocation || "Unassigned"}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+                {whInventory.length === 0 && (
+                  <div className="col-span-full py-8 text-center text-muted-foreground italic text-xs">
+                    This warehouse is currently empty.
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -43,6 +43,7 @@ export function AppLayout() {
 
   const isAccessControlActive = pathname.startsWith("/users") || pathname.startsWith("/roles") || pathname.startsWith("/permissions")
   const [isAccessControlOpen, setIsAccessControlOpen] = useState(isAccessControlActive)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const operationsNavigation = [
     { name: "Items & Products", href: "/products", icon: Package },
@@ -123,10 +124,20 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen w-full relative overflow-hidden bg-transparent">
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-10 bg-background/80 backdrop-blur-sm sm:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Floating Sidebar */}
-      <aside className="fixed inset-y-4 left-4 z-20 hidden w-[260px] flex-col rounded-3xl glass sm:flex overflow-hidden">
+      <aside className={`fixed inset-y-4 left-4 z-20 w-[260px] flex-col rounded-3xl glass overflow-hidden transition-transform duration-300 ease-in-out sm:flex sm:translate-x-0 ${
+        isMobileMenuOpen ? "translate-x-0 flex" : "-translate-x-[120%] hidden"
+      }`}>
         <div className="flex h-20 items-center px-6 mt-2">
-          <Link to="/" className="flex items-center gap-3 font-bold text-xl tracking-tight">
+          <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 font-bold text-xl tracking-tight">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 animate-pulse">
               <Flame className="h-6 w-6" />
             </div>
@@ -141,6 +152,7 @@ export function AppLayout() {
             {/* Overview link */}
             <Link
               to="/dashboard"
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`group flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300 ${
                 pathname.startsWith("/dashboard") 
                   ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
@@ -180,6 +192,7 @@ export function AppLayout() {
                 <div className="pl-4 space-y-1 mt-1 border-l border-border/60 ml-6 animate-in slide-in-from-top-2 duration-200">
                   <Link
                     to="/users"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className={`group flex items-center justify-between rounded-xl px-3 py-2 transition-all duration-300 ${
                       pathname.startsWith("/users")
                         ? "bg-primary/10 text-primary font-semibold"
@@ -194,6 +207,7 @@ export function AppLayout() {
 
                   <Link
                     to="/roles"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className={`group flex items-center justify-between rounded-xl px-3 py-2 transition-all duration-300 ${
                       pathname.startsWith("/roles")
                         ? "bg-primary/10 text-primary font-semibold"
@@ -208,6 +222,7 @@ export function AppLayout() {
 
                   <Link
                     to="/permissions"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className={`group flex items-center justify-between rounded-xl px-3 py-2 transition-all duration-300 ${
                       pathname.startsWith("/permissions")
                         ? "bg-primary/10 text-primary font-semibold"
@@ -232,6 +247,7 @@ export function AppLayout() {
                 <Link
                   key={item.name}
                   to={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className={`group flex items-center justify-between rounded-xl px-4 py-2 transition-all duration-200 ${
                     isActive 
                       ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 font-bold" 
@@ -272,7 +288,7 @@ export function AppLayout() {
         {/* Floating Top Bar */}
         <header className="z-10 flex h-16 items-center justify-between gap-4 rounded-3xl glass px-6 mb-6 shadow-sm">
           <div className="flex items-center gap-4 sm:hidden">
-            <Button variant="outline" size="icon" className="rounded-xl border-white/20">
+            <Button variant="outline" size="icon" className="rounded-xl border-white/20" onClick={() => setIsMobileMenuOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
             <span className="font-bold flex items-center gap-1.5"><Flame className="h-5 w-5 text-primary" /> Fireplan WMS</span>

@@ -126,20 +126,20 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
             Logistics & Shipments
           </h2>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Dispatch stock to locations (Outbound) and receive supplier deliveries (Inbound).
           </p>
         </div>
-        <Button onClick={openCreateDialog} className="rounded-xl shadow-lg shadow-primary/20">
+        <Button onClick={openCreateDialog} className="w-full sm:w-auto rounded-xl shadow-lg shadow-primary/20 shrink-0">
           <Plus className="mr-2 h-4 w-4" /> Create {activeTab} Shipment
         </Button>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-white/5 gap-6">
+      <div className="flex overflow-x-auto scrollbar-hide border-b border-white/5 gap-6">
         <button
           onClick={() => {
             setActiveTab("Inbound")
@@ -190,7 +190,7 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
       {/* Shipment Table */}
       <div className="rounded-2xl border border-white/5 bg-background/30 backdrop-blur-md overflow-hidden shadow">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse hidden md:table">
             <thead>
               <tr className="border-b border-white/10 text-xs text-muted-foreground uppercase tracking-wider bg-background/20">
                 <th className="p-4 font-semibold">Shipment #</th>
@@ -270,6 +270,85 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
               )}
             </tbody>
           </table>
+
+          {/* Mobile / Tablet Grid View */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 md:hidden">
+            {filteredShipments.map((shipment) => {
+              const totalItemsCount = shipment.items.reduce((sum, item) => sum + item.quantityShipped, 0)
+              
+              return (
+                <div key={shipment.id} className="bg-background/40 border border-white/5 rounded-xl p-4 flex flex-col gap-3 transition-colors hover:bg-white/5">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Truck className="h-4 w-4 text-primary shrink-0" />
+                        <Link to={`/shipments/${shipment.id}`} className="font-bold text-foreground hover:text-primary hover:underline transition-colors">
+                          {shipment.shipmentNumber}
+                        </Link>
+                      </div>
+                      <span className="text-[10px] font-medium text-muted-foreground block">
+                        {totalItemsCount} units total
+                      </span>
+                    </div>
+                    <div className="shrink-0 ml-2">
+                      {getStatusBadge(shipment.status)}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs border-y border-white/5 py-2 my-1">
+                    <div className="min-w-0 pr-1">
+                      <div className="text-muted-foreground mb-1">Origin</div>
+                      <div className="font-semibold truncate">
+                        {shipment.type === "Inbound" ? (
+                          <span className="text-foreground/80">{shipment.origin}</span>
+                        ) : (
+                          <span className="text-primary">{getWarehouseName(shipment.origin)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="min-w-0 pr-1">
+                      <div className="text-muted-foreground mb-1">Destination</div>
+                      <div className="font-semibold truncate">
+                        {shipment.type === "Inbound" ? (
+                          <span className="text-primary">{getWarehouseName(shipment.destination)}</span>
+                        ) : (
+                          <span className="text-foreground/80">{shipment.destination}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs pt-1">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Calendar className="h-3 w-3 shrink-0" />
+                        <span>Ship: {shipment.shippedDate || "Draft"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className={`h-3 w-3 shrink-0 ${shipment.receivedDate ? 'text-emerald-500' : 'text-muted-foreground/60'}`} />
+                        {shipment.receivedDate ? (
+                          <span className="text-emerald-500 font-semibold">Recv: {shipment.receivedDate}</span>
+                        ) : (
+                          <span className="text-muted-foreground/60 italic">Not Received</span>
+                        )}
+                      </div>
+                    </div>
+                    <Link to={`/shipments/${shipment.id}`}>
+                      <Button variant="outline" size="sm" className="rounded-lg h-8 border-white/10 shrink-0">
+                        <Eye className="h-3.5 w-3.5 mr-1" /> View
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+            
+            {filteredShipments.length === 0 && (
+              <div className="col-span-full py-8 text-center text-muted-foreground bg-background/10 rounded-xl">
+                No {activeTab.toLowerCase()} shipments found.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -287,7 +366,7 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
             </DialogHeader>
 
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="shipOrigin">
                     {activeTab === "Inbound" ? "Supplier Name (Origin) *" : "Source Facility (Origin) *"}
@@ -344,7 +423,7 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="carrier">Logistics Carrier</Label>
                   <Input
@@ -378,8 +457,8 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
 
                 <div className="space-y-3 max-h-[200px] overflow-y-auto pr-1">
                   {shipmentItems.map((item, idx) => (
-                    <div key={idx} className="flex gap-2 items-end bg-muted/20 p-2.5 rounded-xl border border-white/5">
-                      <div className="flex-1 space-y-1">
+                    <div key={idx} className="flex flex-col sm:flex-row gap-2 sm:items-end bg-muted/20 p-2.5 rounded-xl border border-white/5">
+                      <div className="flex-1 space-y-1 w-full">
                         <Label className="text-[10px] text-muted-foreground uppercase font-bold">Select Product</Label>
                         <select
                           value={item.productId}
@@ -392,7 +471,7 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
                         </select>
                       </div>
 
-                      <div className="w-20 space-y-1">
+                      <div className="w-full sm:w-20 space-y-1">
                         <Label className="text-[10px] text-muted-foreground uppercase font-bold">Quantity</Label>
                         <Input
                           type="number"
@@ -404,8 +483,8 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
                       </div>
 
                       {activeTab === "Inbound" && (
-                        <>
-                          <div className="w-28 space-y-1">
+                        <div className="flex gap-2 w-full sm:w-auto">
+                          <div className="flex-1 sm:w-28 space-y-1">
                             <Label className="text-[10px] text-muted-foreground uppercase font-bold">Lot #</Label>
                             <Input
                               placeholder="Lot Code"
@@ -414,7 +493,7 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
                               className="h-9 px-2 rounded-lg text-xs font-mono"
                             />
                           </div>
-                          <div className="w-28 space-y-1">
+                          <div className="flex-1 sm:w-28 space-y-1">
                             <Label className="text-[10px] text-muted-foreground uppercase font-bold">Expiry Date</Label>
                             <Input
                               type="date"
@@ -423,30 +502,32 @@ export function ShipmentsList({ defaultType }: { defaultType?: "Inbound" | "Outb
                               className="h-9 px-2 rounded-lg text-xs"
                             />
                           </div>
-                        </>
+                        </div>
                       )}
 
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveRow(idx)}
-                        disabled={shipmentItems.length === 1}
-                        className="h-9 w-9 text-rose-500 hover:bg-rose-500/10 rounded-lg shrink-0"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex justify-end w-full sm:w-auto mt-2 sm:mt-0">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveRow(idx)}
+                          disabled={shipmentItems.length === 1}
+                          className="h-9 w-9 text-rose-500 hover:bg-rose-500/10 rounded-lg shrink-0"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setIsOpen(false)} className="rounded-xl">
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-4 border-t border-white/5 pt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsOpen(false)} className="rounded-xl w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-xl">
+              <Button type="submit" className="rounded-xl w-full sm:w-auto">
                 Dispatch Shipment
               </Button>
             </DialogFooter>

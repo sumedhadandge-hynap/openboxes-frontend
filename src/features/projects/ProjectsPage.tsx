@@ -128,18 +128,18 @@ export function ProjectsPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
             Project Inventory Allocations
           </h2>
-          <p className="text-muted-foreground mt-0.5">
+          <p className="text-muted-foreground mt-0.5 text-sm sm:text-base">
             Track materials quarantined or staged for active contracting sites and engineering projects.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={openAllocModal} variant="outline" className="rounded-xl border-white/10 shadow-sm">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button onClick={openAllocModal} variant="outline" className="w-full sm:w-auto rounded-xl border-white/10 shadow-sm shrink-0">
             <Plus className="mr-2 h-4 w-4" /> Allocate Material
           </Button>
-          <Button onClick={openProjModal} className="rounded-xl shadow-lg shadow-primary/20">
+          <Button onClick={openProjModal} className="w-full sm:w-auto rounded-xl shadow-lg shadow-primary/20 shrink-0">
             <Plus className="mr-2 h-4 w-4" /> Create Project
           </Button>
         </div>
@@ -147,7 +147,7 @@ export function ProjectsPage() {
 
       {/* Filters Card */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-background/40 backdrop-blur-sm p-4 rounded-2xl border border-white/5 shadow-sm">
-        <div className="flex items-center gap-2 w-full overflow-x-auto py-1">
+        <div className="flex items-center gap-2 w-full overflow-x-auto py-1 scrollbar-hide">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mr-2 shrink-0">
             Contract:
           </span>
@@ -319,11 +319,11 @@ export function ProjectsPage() {
             {errorMsg && <p className="text-xs text-rose-500 font-bold animate-pulse">{errorMsg}</p>}
             {successMsg && <p className="text-xs text-emerald-500 font-bold animate-pulse">{successMsg}</p>}
 
-            <DialogFooter className="border-t border-white/5 pt-4">
-              <Button type="button" variant="ghost" onClick={() => setIsAllocOpen(false)} className="rounded-xl">
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-4 border-t border-white/5 pt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsAllocOpen(false)} className="rounded-xl w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-xl font-bold">
+              <Button type="submit" className="rounded-xl font-bold w-full sm:w-auto">
                 Lock Staged Stock
               </Button>
             </DialogFooter>
@@ -343,7 +343,7 @@ export function ProjectsPage() {
             </DialogHeader>
 
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="projCode">Project Code *</Label>
                   <Input
@@ -405,11 +405,11 @@ export function ProjectsPage() {
               </div>
             </div>
 
-            <DialogFooter className="border-t border-white/5 pt-4">
-              <Button type="button" variant="ghost" onClick={() => setIsProjOpen(false)} className="rounded-xl">
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-4 border-t border-white/5 pt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsProjOpen(false)} className="rounded-xl w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-xl font-bold">
+              <Button type="submit" className="rounded-xl font-bold w-full sm:w-auto">
                 Initialize Site Project
               </Button>
             </DialogFooter>

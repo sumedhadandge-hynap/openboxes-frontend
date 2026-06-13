@@ -52,7 +52,7 @@ export function ProcurementPage() {
       </div>
 
       {/* KPI Bento Grid */}
-      <div className="grid gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         <Card className="border border-white/5 bg-background/20 backdrop-blur-sm p-4 rounded-2xl flex items-center gap-4">
           <div className="p-3 bg-primary/10 text-primary rounded-xl">
             <TrendingUp className="h-6 w-6" />
@@ -94,9 +94,9 @@ export function ProcurementPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-7">
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
         {/* Supplier Performance */}
-        <Card className="col-span-4 border-0 bg-background/30 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden relative group">
+        <Card className="md:col-span-4 border-0 bg-background/30 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden relative group">
           <CardHeader>
             <CardTitle className="text-lg font-bold">Approved Vendors & Performance</CardTitle>
             <CardDescription>Metrics are based on lead times and inspection checklist pass rates.</CardDescription>
@@ -104,7 +104,7 @@ export function ProcurementPage() {
           <CardContent>
             <div className="space-y-4">
               {suppliers.map((sup, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-background/50 border border-white/5 hover:bg-background/80 transition-all">
+                <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-background/50 border border-white/5 hover:bg-background/80 transition-all">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-foreground">{sup.name}</span>
@@ -118,7 +118,7 @@ export function ProcurementPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-xl text-sm font-bold">
+                  <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-xl text-sm font-bold w-fit">
                     <Star className="h-4 w-4 fill-primary shrink-0" />
                     <span>{sup.rating}</span>
                   </div>
@@ -129,7 +129,7 @@ export function ProcurementPage() {
         </Card>
 
         {/* Recent Requisitions (Needs Action) */}
-        <Card className="col-span-3 border-0 bg-background/30 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden group">
+        <Card className="md:col-span-3 border-0 bg-background/30 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden group">
           <CardHeader>
             <CardTitle className="text-lg font-bold">Recent PO Material Checklist</CardTitle>
             <CardDescription>A list of recently procured items and their quantities.</CardDescription>

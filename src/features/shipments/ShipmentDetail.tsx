@@ -183,7 +183,7 @@ export function ShipmentDetail() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto hidden md:block">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-white/10 text-xs text-muted-foreground uppercase tracking-wider">
@@ -227,6 +227,55 @@ export function ShipmentDetail() {
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Card View for Invoice Items */}
+            <div className="grid grid-cols-1 gap-4 mt-4 md:hidden">
+              {shipment.items.map((item, index) => {
+                const prod = getProductDetails(item.productId)
+                return (
+                  <div key={index} className="bg-background/40 border border-white/5 rounded-xl p-4 flex flex-col gap-3">
+                    <div>
+                      <div className="font-bold text-foreground">{prod.name}</div>
+                      <span className="font-mono text-xs text-muted-foreground">{prod.sku}</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="space-y-0.5">
+                        <span className="text-muted-foreground block">Lot Number</span>
+                        <span className="font-mono font-semibold block">{item.lotNumber}</span>
+                      </div>
+                      {item.expirationDate && (
+                        <div className="space-y-0.5">
+                          <span className="text-muted-foreground flex items-center gap-1">
+                            <Calendar className="h-3 w-3" /> Expiry
+                          </span>
+                          <span className="font-semibold">{item.expirationDate}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs border-t border-white/5 pt-2">
+                      <div className="space-y-0.5">
+                        <span className="text-muted-foreground block">Qty Shipped</span>
+                        <span className="font-bold text-foreground">
+                          {item.quantityShipped} <span className="text-xs text-muted-foreground font-normal">{prod.unitOfMeasure}s</span>
+                        </span>
+                      </div>
+                      <div className="space-y-0.5">
+                        <span className="text-muted-foreground block">Qty Received</span>
+                        {shipment.status === "Received" || shipment.status === "Partial" ? (
+                          <span className="font-black text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/5 inline-block">
+                            {item.quantityReceived}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground font-normal italic inline-block mt-0.5">Pending...</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </CardContent>
         </Card>

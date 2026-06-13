@@ -5,7 +5,6 @@ import {
   Bell, 
   Database, 
   RotateCcw, 
-  Save, 
   Building2, 
   Plus, 
   Trash2, 
@@ -181,10 +180,7 @@ export function SettingsPage() {
     resolver: zodResolver(uomSchema),
   })
 
-  const handleSave = () => {
-    localStorage.setItem("ob_system_settings_fire", JSON.stringify(settings))
-    alert("Preferences saved successfully!")
-  }
+  // System settings state
 
   const handleResetDb = () => {
     if (confirm("Are you sure you want to restore all database items to factory defaults? This resets all inventory, layouts, purchase orders, suppliers, and project allocations.")) {
@@ -261,24 +257,21 @@ export function SettingsPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
             System Preferences
           </h2>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Configure default corporate setups, warehouses, layout zoning structure, approved supplier directory, and master lists.
           </p>
         </div>
-        <Button onClick={handleSave} className="rounded-xl shadow-lg shadow-primary/20">
-          <Save className="mr-2 h-4 w-4" /> Save Preferences
-        </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-4">
         {/* Left Side Subtabs */}
-        <div className="md:col-span-1 space-y-1 bg-background/20 p-2.5 rounded-2xl border border-white/5 h-fit shadow-inner">
+        <div className="md:col-span-1 flex flex-row md:flex-col flex-wrap gap-2 bg-background/20 p-2.5 rounded-2xl border border-white/5 h-fit shadow-inner">
           <button
             onClick={() => setActiveSubTab("Profile")}
-            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+            className={`w-auto md:w-full shrink-0 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
               activeSubTab === "Profile"
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/10"
                 : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -288,27 +281,27 @@ export function SettingsPage() {
           </button>
           <button
             onClick={() => setActiveSubTab("Facility")}
-            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+            className={`w-auto md:w-full shrink-0 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
               activeSubTab === "Facility"
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/10"
                 : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
             }`}
           >
-            <Building2 className="h-4 w-4" /> Warehouses & Facilities
+            <Building2 className="h-4 w-4" /> Facilities
           </button>
           <button
             onClick={() => setActiveSubTab("Layout")}
-            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+            className={`w-auto md:w-full shrink-0 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
               activeSubTab === "Layout"
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/10"
                 : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
             }`}
           >
-            <LayoutGrid className="h-4 w-4" /> Zones & Bin Layouts
+            <LayoutGrid className="h-4 w-4" /> Zones & Layouts
           </button>
           <button
             onClick={() => setActiveSubTab("Supplier")}
-            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+            className={`w-auto md:w-full shrink-0 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
               activeSubTab === "Supplier"
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/10"
                 : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -318,23 +311,23 @@ export function SettingsPage() {
           </button>
           <button
             onClick={() => setActiveSubTab("Master")}
-            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+            className={`w-auto md:w-full shrink-0 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
               activeSubTab === "Master"
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/10"
                 : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
             }`}
           >
-            <List className="h-4 w-4" /> Master Data Lists
+            <List className="h-4 w-4" /> Master Lists
           </button>
           <button
             onClick={() => setActiveSubTab("System")}
-            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+            className={`w-auto md:w-full shrink-0 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
               activeSubTab === "System"
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/10"
                 : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
             }`}
           >
-            <Database className="h-4 w-4" /> System & Preferences
+            <Database className="h-4 w-4" /> System Setup
           </button>
         </div>
 
@@ -354,7 +347,7 @@ export function SettingsPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="px-0 pb-0 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label htmlFor="profName">Display Name</Label>
                       <Input
@@ -387,7 +380,7 @@ export function SettingsPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="px-0 pb-0 space-y-4 text-sm">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <span className="text-xs text-muted-foreground font-semibold">Legal Entity Name</span>
                       <div className="font-bold text-foreground">Fireplan Systems & Projects Pvt. Ltd.</div>
@@ -398,7 +391,7 @@ export function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <span className="text-xs text-muted-foreground font-semibold">Corporate Identity No (CIN)</span>
                       <div className="font-mono text-foreground font-semibold">U29193PN2015PTC155490</div>
@@ -425,7 +418,7 @@ export function SettingsPage() {
                     Manage physical engineering storage depots, warehouses, and labs.
                   </CardDescription>
                 </div>
-                <Button onClick={() => { resetFac(); setIsFacOpen(true); }} size="sm" className="rounded-xl">
+                <Button onClick={() => { resetFac(); setIsFacOpen(true); }} size="sm" className="w-full sm:w-auto rounded-xl mt-2 sm:mt-0">
                   <Plus className="h-4 w-4 mr-1.5" /> Add Facility
                 </Button>
               </div>
@@ -443,7 +436,7 @@ export function SettingsPage() {
 
               {/* Facilities List Table */}
               <div className="rounded-xl border border-white/5 bg-background/20 overflow-hidden mt-4">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs hidden md:table">
                   <thead>
                     <tr className="border-b border-white/10 text-muted-foreground uppercase bg-background/40 font-semibold">
                       <th className="p-3">Code / Name</th>
@@ -491,6 +484,45 @@ export function SettingsPage() {
                     )}
                   </tbody>
                 </table>
+                
+                {/* Mobile / Tablet Grid View */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 md:hidden">
+                  {filteredWarehouses.map((wh) => (
+                    <div key={wh.id} className="bg-background/40 border border-white/5 rounded-xl p-4 flex flex-col gap-3 transition-colors hover:bg-white/5">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-bold text-foreground">{wh.name}</div>
+                          <div className="font-mono text-[10px] text-muted-foreground mt-0.5">{wh.code}</div>
+                        </div>
+                        <Badge variant="outline" className="rounded-md font-bold shrink-0 ml-2">{wh.type}</Badge>
+                      </div>
+                      <div className="text-xs space-y-1">
+                        <div className="text-muted-foreground"><span className="font-semibold text-foreground/80">Location:</span> {wh.location}</div>
+                        <div className="text-muted-foreground"><span className="font-semibold text-foreground/80">Manager:</span> {wh.manager}</div>
+                      </div>
+                      <div className="flex justify-end pt-2 border-t border-white/5">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={warehouses.length <= 1}
+                          onClick={() => {
+                            if (confirm(`Remove storage facility "${wh.name}"? This action does not delete stock, but removes it from routes.`)) {
+                              removeWarehouse(wh.id)
+                            }
+                          }}
+                          className="h-8 text-rose-500 hover:bg-rose-500/10 rounded-lg"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1.5" /> Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {filteredWarehouses.length === 0 && (
+                    <div className="col-span-full py-8 text-center text-muted-foreground italic text-xs">
+                      No matching storage facilities found.
+                    </div>
+                  )}
+                </div>
               </div>
             </Card>
           )}
@@ -509,8 +541,8 @@ export function SettingsPage() {
                 </div>
                 
                 {/* Depot selector */}
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="layoutWhSelect" className="text-xs shrink-0 font-bold">Active Facility:</Label>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                  <Label htmlFor="layoutWhSelect" className="text-xs shrink-0 font-bold mb-1 sm:mb-0">Active Facility:</Label>
                   <select
                     id="layoutWhSelect"
                     value={selectedLayoutWarehouseId}
@@ -585,7 +617,7 @@ export function SettingsPage() {
                 </div>
 
                 {/* Column 2: Bins list & Addition */}
-                <div className="space-y-4 border-l border-white/5 pl-0 md:pl-6">
+                <div className="space-y-4 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 pl-0 md:pl-6">
                   <span className="text-xs font-bold text-primary uppercase tracking-wider block">2. Shelf Bins in Selected Zone</span>
                   
                   {selectedZoneId ? (
@@ -653,7 +685,7 @@ export function SettingsPage() {
                     Manage certified raw materials manufacturers and supplier organizations.
                   </CardDescription>
                 </div>
-                <Button onClick={() => { resetSup(); setIsSupOpen(true); }} size="sm" className="rounded-xl">
+                <Button onClick={() => { resetSup(); setIsSupOpen(true); }} size="sm" className="w-full sm:w-auto rounded-xl mt-2 sm:mt-0">
                   <Plus className="h-4 w-4 mr-1.5" /> Add Supplier
                 </Button>
               </div>
@@ -671,7 +703,7 @@ export function SettingsPage() {
 
               {/* Suppliers List Table */}
               <div className="rounded-xl border border-white/5 bg-background/20 overflow-hidden mt-4">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs hidden md:table">
                   <thead>
                     <tr className="border-b border-white/10 text-muted-foreground uppercase bg-background/40 font-semibold">
                       <th className="p-3">Supplier Name</th>
@@ -721,6 +753,45 @@ export function SettingsPage() {
                     )}
                   </tbody>
                 </table>
+                
+                {/* Mobile / Tablet Grid View */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 md:hidden">
+                  {filteredSuppliers.map((sup) => (
+                    <div key={sup.id} className="bg-background/40 border border-white/5 rounded-xl p-4 flex flex-col gap-3 transition-colors hover:bg-white/5">
+                      <div className="flex justify-between items-start">
+                        <div className="min-w-0 pr-2">
+                          <div className="font-bold text-foreground truncate">{sup.name}</div>
+                          <div className="font-mono text-[10px] text-primary font-bold mt-0.5">{sup.gstin}</div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (confirm(`Remove supplier "${sup.name}" from approved vendors?`)) {
+                              removeSupplier(sup.id)
+                            }
+                          }}
+                          className="h-8 w-8 text-rose-500 hover:bg-rose-500/10 rounded-lg shrink-0"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="text-xs space-y-1">
+                        <div className="text-muted-foreground"><span className="font-semibold text-foreground/80">Contact:</span> {sup.contactPerson}</div>
+                        <div className="text-muted-foreground"><span className="font-semibold text-foreground/80">Address:</span> {sup.address}</div>
+                      </div>
+                      <div className="flex flex-col gap-1 text-xs text-muted-foreground border-t border-white/5 pt-2">
+                        <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 shrink-0" /> {sup.email}</span>
+                        <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 shrink-0" /> {sup.phone}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {filteredSuppliers.length === 0 && (
+                    <div className="col-span-full py-8 text-center text-muted-foreground italic text-xs">
+                      No approved suppliers found.
+                    </div>
+                  )}
+                </div>
               </div>
             </Card>
           )}
@@ -780,7 +851,7 @@ export function SettingsPage() {
                 </div>
 
                 {/* UOM Master */}
-                <div className="space-y-4 border-l border-white/5 pl-0 md:pl-6">
+                <div className="space-y-4 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 pl-0 md:pl-6">
                   <span className="text-xs font-bold text-primary uppercase tracking-wider block">2. Units of Measure Master</span>
                   
                   {/* Inline Form */}
@@ -836,7 +907,7 @@ export function SettingsPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="px-0 pb-0 space-y-3">
-                  <div className="grid grid-cols-2 gap-4 pb-4 border-b border-white/5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-white/5">
                     <div className="space-y-1.5">
                       <Label htmlFor="defWh">Default Warehouse Depot</Label>
                       <select
@@ -862,37 +933,37 @@ export function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 pt-2">
+                  <div className="flex items-start space-x-2 pt-2">
                     <input
                       type="checkbox"
                       id="notLow"
                       checked={settings.notifyLowStock}
                       onChange={(e) => setSettings({ ...settings, notifyLowStock: e.target.checked })}
-                      className="h-4 w-4 rounded border-white/20 bg-background/50 accent-primary cursor-pointer"
+                      className="mt-0.5 shrink-0 h-4 w-4 rounded border-white/20 bg-background/50 accent-primary cursor-pointer"
                     />
-                    <Label htmlFor="notLow" className="text-sm cursor-pointer">Email when a product falls below Minimum stock level</Label>
+                    <Label htmlFor="notLow" className="text-sm cursor-pointer leading-tight">Email when a product falls below Minimum stock level</Label>
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-start space-x-2">
                     <input
                       type="checkbox"
                       id="notInb"
                       checked={settings.notifyInbound}
                       onChange={(e) => setSettings({ ...settings, notifyInbound: e.target.checked })}
-                      className="h-4 w-4 rounded border-white/20 bg-background/50 accent-primary cursor-pointer"
+                      className="mt-0.5 shrink-0 h-4 w-4 rounded border-white/20 bg-background/50 accent-primary cursor-pointer"
                     />
-                    <Label htmlFor="notInb" className="text-sm cursor-pointer">Email on receiving a new Inbound shipment receipt</Label>
+                    <Label htmlFor="notInb" className="text-sm cursor-pointer leading-tight">Email on receiving a new Inbound shipment receipt</Label>
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-start space-x-2">
                     <input
                       type="checkbox"
                       id="notApp"
                       checked={settings.notifyApproval}
                       onChange={(e) => setSettings({ ...settings, notifyApproval: e.target.checked })}
-                      className="h-4 w-4 rounded border-white/20 bg-background/50 accent-primary cursor-pointer"
+                      className="mt-0.5 shrink-0 h-4 w-4 rounded border-white/20 bg-background/50 accent-primary cursor-pointer"
                     />
-                    <Label htmlFor="notApp" className="text-sm cursor-pointer">Email when an internal requisition requires manager approval</Label>
+                    <Label htmlFor="notApp" className="text-sm cursor-pointer leading-tight">Email when an internal requisition requires manager approval</Label>
                   </div>
                 </CardContent>
               </Card>
@@ -929,7 +1000,7 @@ export function SettingsPage() {
             </DialogHeader>
 
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="code" className="text-xs font-semibold">Short Code *</Label>
                   <Input
@@ -988,11 +1059,11 @@ export function SettingsPage() {
               </div>
             </div>
 
-            <DialogFooter className="pt-2">
-              <Button type="button" variant="ghost" onClick={() => setIsFacOpen(false)} className="rounded-xl text-xs">
+            <DialogFooter className="pt-2 flex-col sm:flex-row gap-2 sm:gap-0 w-full sm:w-auto mt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsFacOpen(false)} className="rounded-xl text-xs w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-xl text-xs">
+              <Button type="submit" className="rounded-xl text-xs w-full sm:w-auto">
                 <FileCheck className="h-4 w-4 mr-1.5" /> Save Facility
               </Button>
             </DialogFooter>
@@ -1012,7 +1083,7 @@ export function SettingsPage() {
             </DialogHeader>
 
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="supName" className="text-xs font-semibold">Supplier Name *</Label>
                   <Input
@@ -1046,7 +1117,7 @@ export function SettingsPage() {
                 {errorsSup.contactPerson && <p className="text-[10px] text-rose-500 font-medium">{errorsSup.contactPerson.message?.toString()}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="email" className="text-xs font-semibold">Official Email Address *</Label>
                   <Input
@@ -1081,11 +1152,11 @@ export function SettingsPage() {
               </div>
             </div>
 
-            <DialogFooter className="pt-2">
-              <Button type="button" variant="ghost" onClick={() => setIsSupOpen(false)} className="rounded-xl text-xs">
+            <DialogFooter className="pt-2 flex-col sm:flex-row gap-2 sm:gap-0 w-full sm:w-auto mt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsSupOpen(false)} className="rounded-xl text-xs w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-xl text-xs">
+              <Button type="submit" className="rounded-xl text-xs w-full sm:w-auto">
                 <FileCheck className="h-4 w-4 mr-1.5" /> Register Supplier
               </Button>
             </DialogFooter>

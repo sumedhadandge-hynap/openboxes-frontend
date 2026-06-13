@@ -79,17 +79,17 @@ export function ReceiveShipment() {
       </div>
 
       {/* Stepper Headers */}
-      <div className="flex items-center justify-between bg-background/20 border border-white/5 p-4 rounded-2xl">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-background/20 border border-white/5 p-4 rounded-2xl gap-3 sm:gap-0">
         <div className={`flex items-center gap-2 font-bold text-sm ${step >= 1 ? "text-primary" : "text-muted-foreground"}`}>
           <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs border ${step >= 1 ? "bg-primary text-primary-foreground border-primary" : "border-white/10"}`}>1</div>
           <span>Verify Documents</span>
         </div>
-        <ChevronRight className="h-4 w-4 text-muted-foreground/60" />
+        <ChevronRight className="hidden sm:block h-4 w-4 text-muted-foreground/60" />
         <div className={`flex items-center gap-2 font-bold text-sm ${step >= 2 ? "text-primary" : "text-muted-foreground"}`}>
           <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs border ${step >= 2 ? "bg-primary text-primary-foreground border-primary" : "border-white/10"}`}>2</div>
           <span>Inspect Products</span>
         </div>
-        <ChevronRight className="h-4 w-4 text-muted-foreground/60" />
+        <ChevronRight className="hidden sm:block h-4 w-4 text-muted-foreground/60" />
         <div className={`flex items-center gap-2 font-bold text-sm ${step >= 3 ? "text-primary" : "text-muted-foreground"}`}>
           <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs border ${step >= 3 ? "bg-primary text-primary-foreground border-primary" : "border-white/10"}`}>3</div>
           <span>Putaway Inventory</span>
@@ -105,7 +105,7 @@ export function ReceiveShipment() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-0 pb-0 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="docRef">Delivery Document / Waybill #</Label>
                 <Input id="docRef" value={documentRef} onChange={(e) => setDocumentRef(e.target.value)} className="rounded-xl" />
@@ -116,7 +116,7 @@ export function ReceiveShipment() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="carrier">Carrier / Freight Agent</Label>
                 <Input id="carrier" value={carrier} onChange={(e) => setCarrier(e.target.value)} className="rounded-xl" />
@@ -162,7 +162,7 @@ export function ReceiveShipment() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="space-y-1.5">
                         <Label className="text-xs">Qty Received *</Label>
                         <Input
@@ -240,7 +240,7 @@ export function ReceiveShipment() {
             </div>
 
             <div className="overflow-x-auto rounded-xl border border-white/5 mt-4">
-              <table className="w-full text-left border-collapse text-sm">
+              <table className="w-full text-left border-collapse text-sm hidden md:table">
                 <thead>
                   <tr className="bg-background/40 border-b border-white/5">
                     <th className="p-3 font-semibold">Product</th>
@@ -267,6 +267,37 @@ export function ReceiveShipment() {
                   })}
                 </tbody>
               </table>
+
+              {/* Mobile Card View for Putaway */}
+              <div className="grid grid-cols-1 gap-4 p-4 md:hidden">
+                {inspections.map((insp, idx) => {
+                  const prod = getProductDetails(insp.productId)
+                  return (
+                    <div key={idx} className="bg-background/40 border border-white/5 rounded-xl p-4 flex flex-col gap-3">
+                      <div>
+                        <div className="font-bold text-foreground">{prod.name}</div>
+                        <span className="font-mono text-xs text-muted-foreground">{prod.sku}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="space-y-0.5">
+                          <span className="text-muted-foreground">Lot Number</span>
+                          <div className="font-mono font-semibold">{insp.lotNumber}</div>
+                        </div>
+                        <div className="space-y-0.5">
+                          <span className="text-muted-foreground">Bin Location</span>
+                          <div className="font-semibold">{insp.binLocation}</div>
+                        </div>
+                      </div>
+                      <div className="border-t border-white/5 pt-2 flex justify-between items-center">
+                        <span className="text-xs text-muted-foreground font-semibold">Receipt Qty:</span>
+                        <span className="font-black text-foreground">
+                          {insp.quantityReceived} <span className="text-xs font-normal text-muted-foreground">{prod.unitOfMeasure}s</span>
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
             <div className="flex justify-between pt-4 border-t border-white/5 mt-6">

@@ -131,14 +131,14 @@ export function PurchaseOrdersList() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
             Purchase Orders (POs)
           </h2>
-          <p className="text-muted-foreground mt-0.5">
+          <p className="text-muted-foreground mt-0.5 text-sm sm:text-base">
             Log official procurement contracts and manage hardware arrivals from manufacturing vendors.
           </p>
         </div>
-        <Button onClick={openCreateDialog} className="rounded-xl shadow-lg shadow-primary/20">
+        <Button onClick={openCreateDialog} className="w-full sm:w-auto rounded-xl shadow-lg shadow-primary/20 shrink-0">
           <Plus className="mr-2 h-4 w-4" /> Create Purchase Order
         </Button>
       </div>
@@ -155,7 +155,7 @@ export function PurchaseOrdersList() {
           />
         </div>
         
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto py-1">
+        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto py-1 scrollbar-hide pb-2 md:pb-1">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mr-2 shrink-0">
             PO Status:
           </span>
@@ -178,7 +178,8 @@ export function PurchaseOrdersList() {
       {/* Reusable Data Table */}
       <div className="rounded-2xl border border-white/5 bg-background/30 backdrop-blur-md overflow-hidden shadow">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          {/* Desktop Table View */}
+          <table className="w-full text-left border-collapse hidden md:table">
             <thead>
               <tr className="border-b border-white/10 text-xs text-muted-foreground uppercase tracking-wider bg-background/20">
                 <th className="p-4 font-semibold">PO Details</th>
@@ -274,6 +275,93 @@ export function PurchaseOrdersList() {
               )}
             </tbody>
           </table>
+
+          {/* Mobile / Tablet Grid View */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 md:hidden">
+            {filteredPOs.map((po) => {
+              const poSum = po.items.reduce((sum, item) => sum + item.quantityOrdered * item.unitPrice, 0)
+              const itemsCount = po.items.reduce((sum, item) => sum + item.quantityOrdered, 0)
+
+              return (
+                <div key={po.id} className="bg-background/40 border border-white/5 rounded-xl p-4 flex flex-col gap-3 transition-colors hover:bg-white/5">
+                  <div className="flex justify-between items-start">
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <FileText className="h-4 w-4 text-primary shrink-0" />
+                        <span className="font-mono text-sm font-black text-foreground truncate">{po.poNumber}</span>
+                      </div>
+                      <div className="font-semibold text-foreground/80 text-sm truncate">{po.supplier}</div>
+                    </div>
+                    <div className="text-right shrink-0 ml-2">
+                      <Badge
+                        className="rounded-full text-[10px] font-bold px-2 py-0.5"
+                        variant={
+                          po.status === "Completed"
+                            ? "default"
+                            : po.status === "Approved"
+                            ? "secondary"
+                            : po.status === "Pending Approval"
+                            ? "outline"
+                            : "destructive"
+                        }
+                      >
+                        {po.status}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs border-y border-white/5 py-2 my-1">
+                    <div>
+                      <div className="text-muted-foreground mb-1">Order Details</div>
+                      <div className="font-medium text-[10px] uppercase">{itemsCount} units total</div>
+                      <div className="font-black text-foreground text-sm mt-0.5">{formatCurrency(poSum)}</div>
+                    </div>
+                    <div className="space-y-1 text-[10px]">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="text-muted-foreground">Ord:</span> <span className="font-medium">{po.orderDate}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="text-muted-foreground">Exp:</span> <span className="font-medium">{po.deliveryDate}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  {(po.status === "Pending Approval" || po.status === "Approved" || po.status === "Completed") && (
+                    <div className="flex items-center justify-end pt-1">
+                      {po.status === "Pending Approval" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => approvePurchaseOrder(po.id)}
+                          className="w-full sm:w-auto rounded-lg h-8 border-white/10 hover:bg-emerald-500/10 hover:text-emerald-500"
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Approve
+                        </Button>
+                      )}
+                      {po.status === "Approved" && (
+                        <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Authorized
+                        </span>
+                      )}
+                      {po.status === "Completed" && (
+                        <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-blue-500" /> Fully Received
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+            {filteredPOs.length === 0 && (
+              <div className="col-span-full py-8 text-center text-muted-foreground bg-background/10 rounded-xl">
+                No purchase orders found matching filters.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -290,7 +378,7 @@ export function PurchaseOrdersList() {
 
             <div className="grid gap-4 py-4">
               {/* Header Details */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="supplier">Supplier Vendor *</Label>
                   <select
@@ -322,8 +410,8 @@ export function PurchaseOrdersList() {
               {/* Item Adder */}
               <div className="border-t border-white/5 pt-4 mt-2">
                 <h4 className="text-sm font-semibold text-foreground mb-3">Add Order Items</h4>
-                <div className="grid grid-cols-12 gap-3 items-end bg-muted/30 p-3 rounded-2xl border border-white/5">
-                  <div className="col-span-6 space-y-1">
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end bg-muted/30 p-3 rounded-2xl border border-white/5">
+                  <div className="sm:col-span-6 space-y-1">
                     <Label className="text-xs">Product Spec</Label>
                     <select
                       value={selectedProdId}
@@ -337,29 +425,31 @@ export function PurchaseOrdersList() {
                       ))}
                     </select>
                   </div>
-                  <div className="col-span-3 space-y-1">
-                    <Label className="text-xs">Quantity</Label>
-                    <Input
-                      type="number"
-                      value={inputQty}
-                      onChange={(e) => setInputQty(Number(e.target.value))}
-                      min={1}
-                      className="h-9 text-xs rounded-lg"
-                    />
-                  </div>
-                  <div className="col-span-3 space-y-1">
-                    <Label className="text-xs">Unit Cost (₹)</Label>
-                    <Input
-                      type="number"
-                      value={inputPrice}
-                      onChange={(e) => setInputPrice(Number(e.target.value))}
-                      min={1}
-                      className="h-9 text-xs rounded-lg"
-                    />
+                  <div className="grid grid-cols-2 gap-3 sm:col-span-6">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Quantity</Label>
+                      <Input
+                        type="number"
+                        value={inputQty}
+                        onChange={(e) => setInputQty(Number(e.target.value))}
+                        min={1}
+                        className="h-9 text-xs rounded-lg"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Unit Cost (₹)</Label>
+                      <Input
+                        type="number"
+                        value={inputPrice}
+                        onChange={(e) => setInputPrice(Number(e.target.value))}
+                        min={1}
+                        className="h-9 text-xs rounded-lg"
+                      />
+                    </div>
                   </div>
                   
-                  <div className="col-span-12 flex justify-end">
-                    <Button type="button" size="sm" onClick={handleAddItem} className="h-8 rounded-lg text-xs font-semibold">
+                  <div className="sm:col-span-12 flex justify-end mt-2 sm:mt-0">
+                    <Button type="button" size="sm" onClick={handleAddItem} className="w-full sm:w-auto h-8 rounded-lg text-xs font-semibold">
                       Add to List
                     </Button>
                   </div>
@@ -397,11 +487,11 @@ export function PurchaseOrdersList() {
               </div>
             </div>
 
-            <DialogFooter className="border-t border-white/5 pt-4">
-              <Button type="button" variant="ghost" onClick={() => setIsOpen(false)} className="rounded-xl">
+            <DialogFooter className="border-t border-white/5 pt-4 flex-col sm:flex-row gap-2 sm:gap-0 mt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsOpen(false)} className="rounded-xl w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-xl">
+              <Button type="submit" className="rounded-xl w-full sm:w-auto">
                 Save PO (Request Authorization)
               </Button>
             </DialogFooter>

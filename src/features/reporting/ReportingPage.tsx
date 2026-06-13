@@ -62,7 +62,7 @@ export function ReportingPage() {
           </p>
         </div>
         
-        <div className="flex items-center gap-2 bg-muted/30 backdrop-blur-sm p-1 rounded-xl border border-white/5">
+        <div className="flex items-center gap-2 bg-muted/30 backdrop-blur-sm p-1 rounded-xl border border-white/5 overflow-x-auto max-w-full">
           {["7d", "30d", "12m"].map((range) => (
             <Button
               key={range}
@@ -230,7 +230,7 @@ export function ReportingPage() {
           </CardHeader>
           <CardContent className="pt-2">
             <div className="h-64 flex flex-col justify-between">
-              <div className="flex-1 flex items-center justify-around">
+              <div className="flex-1 flex flex-col sm:flex-row items-center justify-around gap-6 py-4">
                 <div className="relative flex items-center justify-center">
                   <svg className="w-36 h-36 transform -rotate-90">
                     <defs>

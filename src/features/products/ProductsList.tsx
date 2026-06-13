@@ -92,15 +92,15 @@ export function ProductsList() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
             Product Catalog
           </h2>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Manage your master list of fire protection equipment, track SKU codes, categories, and safety stock thresholds.
           </p>
         </div>
-        <Link to="/products/create">
-          <Button className="rounded-xl shadow-lg shadow-primary/20">
+        <Link to="/products/create" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto rounded-xl shadow-lg shadow-primary/20 shrink-0">
             <Plus className="mr-2 h-4 w-4" /> Add Product
           </Button>
         </Link>
@@ -117,7 +117,7 @@ export function ProductsList() {
             className="pl-9 bg-background/50 rounded-xl"
           />
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto py-1">
+        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto py-1 scrollbar-hide pb-2 md:pb-1">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mr-2 shrink-0">
             Category:
           </span>
@@ -167,7 +167,7 @@ export function ProductsList() {
                   {product.description || "No description provided."}
                 </p>
 
-                <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/5">
                   <div>
                     <span className="text-xs text-muted-foreground block">Category</span>
                     <span className="font-semibold text-sm">{product.category}</span>
@@ -235,8 +235,8 @@ export function ProductsList() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto px-1 scrollbar-hide">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="sku">SKU Code *</Label>
                   <Input
@@ -261,7 +261,7 @@ export function ProductsList() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="category">Category</Label>
                   <select
@@ -296,7 +296,7 @@ export function ProductsList() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="minLevel">Minimum Stock Level</Label>
                   <Input
@@ -334,11 +334,11 @@ export function ProductsList() {
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setIsOpen(false)} className="rounded-xl">
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button type="button" variant="ghost" onClick={() => setIsOpen(false)} className="rounded-xl w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-xl">
+              <Button type="submit" className="rounded-xl w-full sm:w-auto">
                 {editingProduct ? "Save Changes" : "Create Product"}
               </Button>
             </DialogFooter>

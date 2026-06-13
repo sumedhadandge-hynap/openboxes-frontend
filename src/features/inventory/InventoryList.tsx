@@ -150,15 +150,15 @@ export function InventoryList() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
             Inventory Management
           </h2>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Track lot batches, bin locations, and expiration dates. Process audits and internal transfers.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => openAdjust()} className="rounded-xl border-white/10 shadow-sm" variant="outline">
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button onClick={() => openAdjust()} className="w-full sm:w-auto rounded-xl border-white/10 shadow-sm shrink-0" variant="outline">
             <Plus className="mr-2 h-4 w-4" /> New Adjustment
           </Button>
         </div>
@@ -212,11 +212,11 @@ export function InventoryList() {
             className="pl-9 bg-background/50 rounded-xl"
           />
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto py-1">
+        <div className="flex items-center gap-2 w-full md:w-auto py-1 overflow-x-auto scrollbar-hide">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mr-2 shrink-0">
-            Active Warehouse/Facility:
+            Active Facility:
           </span>
-          <Badge variant="outline" className="px-3 py-1.5 bg-primary/10 border-primary/20 text-primary font-bold text-xs rounded-full">
+          <Badge variant="outline" className="shrink-0 px-3 py-1.5 bg-primary/10 border-primary/20 text-primary font-bold text-xs rounded-full">
             {getWarehouseDetails(selectedWarehouseId || "").code} - {getWarehouseDetails(selectedWarehouseId || "").name}
           </Badge>
         </div>
@@ -225,7 +225,8 @@ export function InventoryList() {
       {/* Inventory Table */}
       <div className="rounded-2xl border border-white/5 bg-background/30 backdrop-blur-md overflow-hidden shadow">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          {/* Desktop Table View */}
+          <table className="w-full text-left border-collapse hidden md:table">
             <thead>
               <tr className="border-b border-white/10 text-xs text-muted-foreground uppercase tracking-wider bg-background/20">
                 <th className="p-4 font-semibold">Product Spec</th>
@@ -317,6 +318,77 @@ export function InventoryList() {
               )}
             </tbody>
           </table>
+
+          {/* Mobile / Tablet Grid View */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 md:hidden">
+            {filteredInventory.map((item) => {
+              const prod = getProductDetails(item.productId)
+              const wh = getWarehouseDetails(item.warehouseId)
+              const isItemExpired = isExpired(item.expirationDate)
+              const binObj = binLocations.find(
+                (b) => b.warehouseId === item.warehouseId && (b.code === item.binLocation || b.id === item.binLocation)
+              )
+              const zoneObj = binObj ? zones.find((z) => z.id === binObj.zoneId) : null
+              
+              return (
+                <div key={item.id} className="bg-background/40 border border-white/5 rounded-xl p-4 flex flex-col gap-3 transition-colors hover:bg-white/5">
+                  <div className="flex justify-between items-start">
+                    <div className="min-w-0 pr-2">
+                      <span className="font-mono text-xs font-semibold text-muted-foreground block truncate">{prod.sku}</span>
+                      <div className="font-bold text-foreground mt-0.5 text-sm line-clamp-2">{prod.name}</div>
+                      <span className="text-[10px] text-muted-foreground uppercase bg-muted/50 px-1.5 py-0.5 rounded font-bold mt-1 inline-block">
+                        {prod.category}
+                      </span>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-black text-foreground text-lg leading-none">{item.quantityOnHand}</div>
+                      <div className="text-[10px] text-muted-foreground mt-1">{prod.unitOfMeasure}s</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-xs border-y border-white/5 py-2 my-1">
+                    <div className="min-w-0">
+                      <div className="text-muted-foreground mb-1">Location</div>
+                      <div className="flex items-center gap-1.5 font-medium">
+                        <Warehouse className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="truncate">{wh.name}</span>
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-muted-foreground mb-1">Bin / Zone</div>
+                      <div className="font-medium text-primary font-mono truncate">{item.binLocation || "Unassigned"}</div>
+                      {zoneObj && <div className="text-[10px] text-muted-foreground truncate">{zoneObj.name.split(" - ")[0]}</div>}
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-xs pt-1">
+                    <div className="space-y-1">
+                      <div className="font-mono font-semibold">Lot: {item.lotNumber}</div>
+                      {item.expirationDate && (
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className={isItemExpired ? "text-rose-500 font-bold" : ""}>Exp: {item.expirationDate}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Button variant="ghost" size="icon" onClick={() => openAdjust(item)} className="h-8 w-8 rounded-lg bg-background/50 border border-white/5 hover:bg-primary/10 hover:text-primary">
+                        <Edit3 className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => openTransfer(item)} className="h-8 w-8 rounded-lg bg-background/50 border border-white/5 hover:bg-primary/10 hover:text-primary">
+                        <ArrowLeftRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+            {filteredInventory.length === 0 && (
+              <div className="col-span-full py-8 text-center text-muted-foreground bg-background/10 rounded-xl">
+                No inventory items found matching filters.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -373,7 +445,7 @@ export function InventoryList() {
                       ))}
                     </select>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label htmlFor="adjZone">Zone</Label>
                       <select
@@ -427,7 +499,7 @@ export function InventoryList() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="adjLot">Lot Number *</Label>
                   <Input
@@ -453,7 +525,7 @@ export function InventoryList() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {adjustItem && (
                   <div className="space-y-1.5">
                     <Label htmlFor="adjBin">Bin Location</Label>
@@ -494,11 +566,11 @@ export function InventoryList() {
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setIsAdjustOpen(false)} className="rounded-xl">
+            <DialogFooter className="gap-2 sm:gap-0 mt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsAdjustOpen(false)} className="rounded-xl w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-xl">
+              <Button type="submit" className="rounded-xl w-full sm:w-auto">
                 Apply Adjustment
               </Button>
             </DialogFooter>
@@ -618,11 +690,11 @@ export function InventoryList() {
               </div>
             )}
 
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setIsTransferOpen(false)} className="rounded-xl">
+            <DialogFooter className="gap-2 sm:gap-0 mt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsTransferOpen(false)} className="rounded-xl w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-xl">
+              <Button type="submit" className="rounded-xl w-full sm:w-auto">
                 Complete Transfer
               </Button>
             </DialogFooter>

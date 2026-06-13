@@ -159,14 +159,14 @@ export function UsersList() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/75 bg-clip-text text-transparent">
             User Directory
           </h2>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Manage user accounts, assign system access roles, and track permission credentials.
           </p>
         </div>
-        <Button onClick={() => setIsAddOpen(true)} className="rounded-xl shadow-lg shadow-primary/20">
+        <Button onClick={() => setIsAddOpen(true)} className="w-full sm:w-auto rounded-xl shadow-lg shadow-primary/20 shrink-0">
           <Plus className="mr-2 h-4 w-4" /> Add User
         </Button>
       </div>
@@ -193,7 +193,8 @@ export function UsersList() {
       ) : (
         <div className="rounded-2xl border border-white/5 bg-background/30 backdrop-blur-md overflow-hidden shadow">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            {/* Desktop Table View */}
+            <table className="w-full text-left border-collapse hidden md:table">
               <thead>
                 <tr className="border-b border-white/10 text-xs text-muted-foreground uppercase tracking-wider bg-background/20">
                   <th className="p-4 font-semibold">User Details</th>
@@ -260,6 +261,62 @@ export function UsersList() {
                 )}
               </tbody>
             </table>
+
+            {/* Mobile / Tablet Grid View */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 md:hidden">
+              {filteredUsers.map((user) => {
+                const displayName = `${user.firstName} ${user.lastName}`
+                return (
+                  <div key={user.uid} className="bg-background/40 border border-white/5 rounded-xl p-4 flex flex-col gap-3 transition-colors hover:bg-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-orange-400 text-white font-bold flex items-center justify-center text-sm shadow-inner shrink-0">
+                        {user.firstName?.charAt(0) || "U"}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-foreground text-sm truncate">{displayName}</div>
+                        <span className="text-[10px] text-muted-foreground font-mono block truncate">UID: {user.uid}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm text-foreground/80 font-medium truncate" title={user.email}>
+                      {user.email}
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-1.5 flex-1 content-start">
+                      {user.roles && user.roles.length > 0 ? (
+                        user.roles.map((role) => (
+                          <Badge key={role.uid} variant="outline" className="rounded-md border-white/10 px-2 py-0.5 text-[10px] bg-primary/5 text-primary font-medium">
+                            {role.name}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-xs italic text-muted-foreground">No roles assigned</span>
+                      )}
+                    </div>
+                    
+                    <div className="mt-2 pt-3 border-t border-white/5">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setIsManageRolesOpen(true)
+                        }}
+                        className="w-full rounded-lg h-9 border-white/10 text-xs font-semibold"
+                      >
+                        <Shield className="h-3.5 w-3.5 mr-1 text-primary" /> Manage Roles
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })}
+              
+              {filteredUsers.length === 0 && (
+                <div className="col-span-full py-8 text-center text-muted-foreground bg-background/10 rounded-xl">
+                  No users found matching filters.
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
