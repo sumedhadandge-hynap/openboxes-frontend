@@ -1,4 +1,5 @@
 import axios from "axios"
+import { API_BASE_URL } from "@/config"
 
 export interface SystemPermission {
   uid: string
@@ -7,7 +8,7 @@ export interface SystemPermission {
   category?: string
 }
 
-const BASE_URL = "http://localhost:5000/api"
+const BASE_URL = API_BASE_URL
 
 // Default permissions for offline fallback
 const fallbackPermissions: SystemPermission[] = [

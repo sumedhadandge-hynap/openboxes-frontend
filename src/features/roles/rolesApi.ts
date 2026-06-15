@@ -1,8 +1,9 @@
 import axios from "axios"
 import type { Role } from "@/types/roles"
 import { RoleType } from "@/types/roles"
+import { API_BASE_URL } from "@/config"
 
-const API_URL = "http://localhost:5000/api/roles"
+const API_URL = `${API_BASE_URL}/roles`
 
 // Default roles to populate LocalStorage if API fails and storage is empty
 const defaultRoles: Role[] = [

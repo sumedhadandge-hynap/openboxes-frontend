@@ -1,4 +1,5 @@
 import axios from "axios"
+import { API_BASE_URL } from "@/config"
 
 export interface User {
   uid: string
@@ -15,7 +16,7 @@ export interface UserRole {
   roleType: string
 }
 
-const BASE_URL = "http://localhost:5000/api"
+const BASE_URL = API_BASE_URL
 
 // LocalStorage mock fallback data
 const fallbackUsers: User[] = [

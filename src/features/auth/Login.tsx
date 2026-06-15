@@ -2,6 +2,8 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import axios from "axios"
+import { API_BASE_URL } from "@/config"
 import { useAuthStore } from "@/store/useAuthStore"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,6 +21,7 @@ export function Login() {
   const login = useAuthStore((state) => state.login)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const {
     register,
@@ -30,14 +33,50 @@ export function Login() {
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      login(
-        { id: "1", name: "Admin User", email: data.email, role: "ADMIN" },
-        "fake-jwt-token"
-      )
+    setError(null)
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+        email: data.email,
+        password: data.password,
+      })
+
+      if (response.data && response.data.success) {
+        const { accessToken, user } = response.data.data
+        
+        // Fetch user roles
+        let role = "ADMIN"
+        try {
+          const rolesResponse = await axios.get(`${API_BASE_URL}/users/${user.uid}/roles`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          })
+          if (rolesResponse.data && Array.isArray(rolesResponse.data.data) && rolesResponse.data.data.length > 0) {
+            role = rolesResponse.data.data[0].name
+          }
+        } catch (roleError) {
+          console.warn("Failed to fetch user roles, using default ADMIN role:", roleError)
+        }
+
+        login(
+          {
+            id: user.uid,
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            role: role
+          },
+          accessToken
+        )
+      } else {
+        setError(response.data?.message || "Login failed")
+      }
+    } catch (err: any) {
+      console.error("Login API error:", err)
+      const message = err.response?.data?.message || err.message || "An unexpected error occurred. Please try again."
+      setError(message)
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -46,6 +85,12 @@ export function Login() {
         <h2 className="text-3xl font-bold tracking-tight mb-2 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/75 bg-clip-text text-transparent font-sans">Welcome back</h2>
         <p className="text-sm text-muted-foreground">Please sign in to access your dashboard</p>
       </div>
+
+      {error && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm px-4 py-3 rounded-xl mb-4 text-center animate-in fade-in slide-in-from-top-2 font-medium">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="space-y-2">
