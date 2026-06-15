@@ -41,8 +41,8 @@ export function Login() {
       })
 
       if (response.data && response.data.success) {
-        const { accessToken, user } = response.data.data
-        
+        const { accessToken, refreshToken, user } = response.data.data
+
         // Fetch user roles
         let role = "ADMIN"
         try {
@@ -65,7 +65,8 @@ export function Login() {
             email: user.email,
             role: role
           },
-          accessToken
+          accessToken,
+          refreshToken
         )
       } else {
         setError(response.data?.message || "Login failed")
