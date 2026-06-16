@@ -8,6 +8,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   User,
   Mail,
   Lock,
@@ -82,6 +90,9 @@ export function ProfilePage() {
 
   // User detail state from API
   const [userProfile, setUserProfile] = useState<any>(null)
+
+  // Custom logout confirmation modal state
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   // React Hook Forms
   const {
@@ -284,82 +295,94 @@ export function ProfilePage() {
 
         {/* Profile Identity Card */}
         <div className="md:col-span-1 flex flex-col">
-          <Card className="border border-border/60 bg-card/60 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl relative p-6 flex-1 flex flex-col justify-center items-center">
-            <div className="flex flex-col items-center flex-1 justify-between w-full">
-              <div className="flex flex-col items-center w-full justify-center flex-1">
+          <Card className="border border-border/60 bg-card/60 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl relative p-2 flex-1 flex flex-col justify-between">
+            <div className="flex flex-col w-full flex-1">
 
-                {/* Square Photo Container */}
-                <div className="relative h-40 w-60 mb-4 rounded-2xl border border-border/40 overflow-hidden bg-secondary shadow-inner flex items-center justify-center">
-                  {profileImage ? (
-                    <img src={profileImage} alt="Profile" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-foreground text-6xl font-black select-none">
-                      {userProfile?.firstName?.charAt(0) || userStore.user?.name?.charAt(0) || "F"}
-                    </span>
-                  )}
+              {/* Square Photo Container */}
+              <div className="relative w-full aspect-[1.6] rounded-2xl border border-border/40 overflow-hidden bg-secondary shadow-inner flex items-center justify-center">
+                {profileImage ? (
+                  <img src={profileImage} alt="Profile" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-foreground text-6xl font-black select-none">
+                    {userProfile?.firstName?.charAt(0) || userStore.user?.name?.charAt(0) || "F"}
+                  </span>
+                )}
 
-                  {/* Top-Right Circular Remove Button (translucent gray overlay) */}
-                  {isEditingProfile && profileImage && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setProfileImage(null);
-                        localStorage.removeItem(`ob_profile_img_${userProfile.uid}`);
-                      }}
-                      className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-black/40 hover:bg-black/60 transition-colors flex items-center justify-center text-white backdrop-blur-sm shadow-md z-20 active:scale-95"
-                      title="Remove photo"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Upload Action section below the image */}
-                {isEditingProfile && (
-                  <div className="w-full max-w-[200px] p-2 bg-secondary/30 border border-border/50 rounded-2xl flex justify-center items-center">
-                    <Button
-                      type="button"
-                      onClick={() => document.getElementById("avatar-file-input")?.click()}
-                      className="w-full h-9 bg-background hover:bg-muted text-foreground border border-border/80 rounded-xl text-[11px] font-bold shadow-sm transition-all"
-                    >
-                      Upload Photo
-                    </Button>
-                    <input
-                      id="avatar-file-input"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleAvatarChange}
-                    />
-                  </div>
+                {/* Top-Right Circular Remove Button (translucent gray overlay) */}
+                {isEditingProfile && profileImage && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setProfileImage(null);
+                      localStorage.removeItem(`ob_profile_img_${userProfile.uid}`);
+                    }}
+                    className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-black/40 hover:bg-black/60 transition-colors flex items-center justify-center text-white backdrop-blur-sm shadow-md z-20 active:scale-95"
+                    title="Remove photo"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 )}
               </div>
 
-              {/* Unique Logout Button at the bottom of Summary Card */}
-              <div className="mt-8 pt-6 border-t border-border/50 w-full">
-                <Button
-                  onClick={async () => {
-                    if (confirm("Are you sure you want to logout?")) {
-                      await logoutStore()
-                    }
-                  }}
-                  className="w-full h-11 text-xs font-bold rounded-xl border border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-white bg-transparent transition-all flex items-center justify-center gap-2"
-                >
-                  <LogOut className="h-4 w-4 shrink-0" />
-                  Logout
-                </Button>
+              {/* Sub-container for text/actions with slightly more internal spacing */}
+              <div className="px-2 pt-4 pb-2 flex flex-col flex-1 justify-between w-full">
+                <div className="space-y-4">
+
+                  {/* Upload Action section below the image */}
+                  {isEditingProfile && (
+                    <div className="w-full p-2 bg-secondary/30 border border-border/50 rounded-2xl flex justify-center items-center">
+                      <Button
+                        type="button"
+                        onClick={() => document.getElementById("avatar-file-input")?.click()}
+                        className="w-full h-9 bg-background hover:bg-muted text-foreground border border-border/80 rounded-xl text-[11px] font-bold shadow-sm transition-all"
+                      >
+                        Upload Photo
+                      </Button>
+                      <input
+                        id="avatar-file-input"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarChange}
+                      />
+                    </div>
+                  )}
+                  {/* Name and Role Info */}
+                  <div className="text-center space-y-1.5">
+                    <h3 className="text-xl font-bold tracking-tight text-foreground">
+                      {userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : (userStore.user?.name || "")}
+                    </h3>
+                    <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase tracking-wider border border-primary/20">
+                      {userProfile?.roles?.[0]?.name || userStore.user?.role || "USER"}
+                    </div>
+                  </div>
+
+
+                </div>
+
+                {/* Unique Logout Button at the bottom of Summary Card */}
+                <div className="mt-8 pt-4 border-t border-border/50 w-full">
+                  <Button
+                    onClick={() => setShowLogoutConfirm(true)}
+                    className="w-full h-11 text-xs font-bold rounded-xl border border-destructive/30 text-destructive hover:bg-destructive hover:text-white bg-transparent transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="h-4 w-4 shrink-0" />
+                    Logout
+                  </Button>
+                </div>
               </div>
+
             </div>
           </Card>
         </div>
 
         {/* Tab Content Cards */}
-        <div className="md:col-span-2 relative">
+        <div className="md:col-span-2 flex flex-col">
 
           {/* Active Tab: Details Panel */}
           {activeTab === "details" && (
-            <Card className="border border-border/60 bg-card/60 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all duration-300">
+            <Card className="border border-border/60 bg-card/60 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all duration-300 flex-1 flex flex-col">
               <CardHeader className="px-0 pt-0 pb-4 flex flex-row flex-wrap items-center justify-between gap-4 border-b border-border/50">
                 <div className="space-y-1">
                   <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground font-sans">
@@ -504,7 +527,7 @@ export function ProfilePage() {
 
           {/* Active Tab: Security Key Panel */}
           {activeTab === "security" && (
-            <Card className="border border-border/60 bg-card/60 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all duration-300">
+            <Card className="border border-border/60 bg-card/60 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all duration-300 flex-1 flex flex-col">
               <CardHeader className="px-0 pt-0 pb-4 flex flex-row flex-wrap items-center justify-between gap-4 border-b border-border/50">
                 <div className="space-y-1">
                   <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground font-sans">
@@ -688,6 +711,40 @@ export function ProfilePage() {
 
         </div>
       </div>
+
+      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <DialogContent className="max-w-[360px] bg-card/90 backdrop-blur-xl border border-border/60 rounded-3xl p-6 shadow-2xl">
+          <DialogHeader className="space-y-3 flex flex-col items-center justify-center text-center">
+            <div className="h-12 w-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center border border-destructive/20 mb-1">
+              <LogOut className="h-6 w-6" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-foreground">Confirm Logout</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Are you sure you want to log out of your OpenBoxes session? Any unsaved changes may be lost.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-row gap-3 mt-4 sm:space-x-0 w-full">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowLogoutConfirm(false)}
+              className="flex-1 h-11 rounded-xl border border-border text-foreground hover:bg-muted font-bold transition-all"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={async () => {
+                setShowLogoutConfirm(false)
+                await logoutStore()
+              }}
+              className="flex-1 h-11 rounded-xl bg-destructive hover:bg-destructive/90 text-white font-bold transition-all shadow-md"
+            >
+              Log Out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

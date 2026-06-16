@@ -28,6 +28,14 @@ import { useAuthStore } from "@/store/useAuthStore"
 import { useWarehouseStore } from "@/store/useWarehouseStore"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export function AppLayout() {
   const { pathname } = useLocation()
@@ -44,10 +52,16 @@ export function AppLayout() {
   const [newWhManager, setNewWhManager] = useState("")
   const [createError, setCreateError] = useState<string | null>(null)
   const [isCreating, setIsCreating] = useState(warehouses.length === 0)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   const handleLogout = () => {
     setSelectedWarehouseId(null)
     logout()
+  }
+
+  const confirmLogout = () => {
+    setShowLogoutConfirm(false)
+    handleLogout()
   }
 
   const handleCreateWarehouse = (e: React.FormEvent) => {
@@ -239,7 +253,7 @@ export function AppLayout() {
                   <span className="text-xs text-muted-foreground truncate">{user?.email || "admin@fireplansystems.com"}</span>
                 </div>
               </Link>
-              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-destructive/10 hover:text-destructive transition-colors rounded-xl" onClick={handleLogout}>
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-destructive/10 hover:text-destructive transition-colors rounded-xl" onClick={() => setShowLogoutConfirm(true)}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
@@ -484,6 +498,36 @@ export function AppLayout() {
           </div>
         </main>
       </div>
+      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <DialogContent className="max-w-[360px] bg-card/90 backdrop-blur-xl border border-border/60 rounded-3xl p-6 shadow-2xl">
+          <DialogHeader className="space-y-3 flex flex-col items-center justify-center text-center">
+            <div className="h-12 w-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center border border-destructive/20 mb-1">
+              <LogOut className="h-6 w-6" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-foreground">Confirm Logout</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Are you sure you want to log out of your OpenBoxes session? Any unsaved changes may be lost.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-row gap-3 mt-4 sm:space-x-0 w-full">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowLogoutConfirm(false)}
+              className="flex-1 h-11 rounded-xl border border-border text-foreground hover:bg-muted font-bold transition-all"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmLogout}
+              className="flex-1 h-11 rounded-xl bg-destructive hover:bg-destructive/90 text-white font-bold transition-all shadow-md"
+            >
+              Log Out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
