@@ -230,15 +230,15 @@ export function AppLayout() {
           {/* User Profile Area */}
           <div className="p-4 mt-auto">
             <div className="flex items-center justify-between rounded-2xl bg-muted/50 p-3 backdrop-blur-md border border-white/10">
-              <div className="flex items-center gap-3 overflow-hidden">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-orange-400 text-white font-bold shadow-inner">
+              <Link to="/profile" className="flex items-center gap-3 overflow-hidden hover:opacity-85 transition-opacity group cursor-pointer flex-1 mr-2">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-orange-400 text-white font-bold shadow-inner group-hover:scale-105 transition-transform duration-200">
                   {user?.name?.charAt(0) || "F"}
                 </div>
-                <div className="flex flex-col overflow-hidden">
-                  <span className="text-sm font-semibold truncate">{user?.name || "Fireplan Admin"}</span>
+                <div className="flex flex-col overflow-hidden text-left">
+                  <span className="text-sm font-semibold truncate group-hover:text-primary transition-colors duration-200">{user?.name || "Fireplan Admin"}</span>
                   <span className="text-xs text-muted-foreground truncate">{user?.email || "admin@fireplansystems.com"}</span>
                 </div>
-              </div>
+              </Link>
               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-destructive/10 hover:text-destructive transition-colors rounded-xl" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
               </Button>

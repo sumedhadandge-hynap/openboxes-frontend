@@ -16,6 +16,7 @@ interface AuthState {
   isAuthenticated: boolean
   login: (user: User, token: string, refreshToken: string) => void
   logout: () => Promise<void>
+  updateUser: (updatedFields: Partial<User>) => void
 }
 
 const getInitialUser = (): User | null => {
@@ -38,6 +39,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.setItem("refreshToken", refreshToken)
     localStorage.setItem("user", JSON.stringify(user))
     set({ user, token, refreshToken, isAuthenticated: true })
+  },
+  updateUser: (updatedFields) => {
+    set((state) => {
+      if (!state.user) return {}
+      const updatedUser = { ...state.user, ...updatedFields }
+      localStorage.setItem("user", JSON.stringify(updatedUser))
+      return { user: updatedUser }
+    })
   },
   logout: async () => {
     const refreshToken = localStorage.getItem("refreshToken")

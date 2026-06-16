@@ -4,6 +4,7 @@ import { AppLayout } from "@/layouts/AppLayout"
 import { AuthLayout } from "@/layouts/AuthLayout"
 import { Dashboard } from "@/features/dashboard/Dashboard"
 import { Login } from "@/features/auth/Login"
+import ResetPassword from "./pages/auth/ResetPassword"
 import { UsersList } from "@/features/users/UsersList"
 import { RolesList } from "@/features/roles/RolesList"
 import { useAuthStore } from "@/store/useAuthStore"
@@ -22,6 +23,7 @@ import { RequisitionsList } from "@/features/requisitions/RequisitionsList"
 import { RequisitionDetail } from "@/features/requisitions/RequisitionDetail"
 import { PermissionsList } from "@/features/permissions/PermissionsList"
 import { SettingsPage } from "@/features/settings/SettingsPage"
+import { ProfilePage } from "@/features/profile/ProfilePage"
 import { ReportingPage } from "@/features/reporting/ReportingPage"
 import { StocklistsPage } from "@/features/stocklists/StocklistsPage"
 import { ProcurementPage } from "@/features/procurement/ProcurementPage"
@@ -45,6 +47,7 @@ function App() {
         <Routes>
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
 
           <Route
@@ -92,6 +95,7 @@ function App() {
             <Route path="requisitions/:id" element={<RequisitionDetail />} />
             
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="profile" element={<ProfilePage />} />
           </Route>
         </Routes>
       </BrowserRouter>
